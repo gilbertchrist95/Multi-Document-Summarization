@@ -1,6 +1,8 @@
 from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
+from Control.ControlDokumen import ControlDokumen
+
 import os
 
 
@@ -11,6 +13,7 @@ class FormMainMenu:
         # self.parent.protocol('WN_DELETE_WINDOW', self.exit)
         self.centerWindow()
         self.setComponent()
+        self.controlDokumen = ControlDokumen()
 
     def centerWindow(self):
         w = 800
@@ -64,11 +67,13 @@ class FormMainMenu:
         folderPath = filedialog.askdirectory()
         self.entryBrowse.insert(0, (folderPath))
         self.listFile = os.listdir(folderPath)
-        i = 1;
+        i = 1
         for file in self.listFile:
             dokumen = file.split('-')
             self.tree.insert('', 'end', text=str(i), values=(dokumen[0], dokumen[1]))
             i += 1
+        self.controlDokumen.simpan_dokumen(folderPath)
+
 
 if __name__ == '__main__':
     root = Tk()

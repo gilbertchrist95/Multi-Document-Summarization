@@ -1,5 +1,5 @@
 import os
-from Entity.Dokumen import Dokumen
+from Entity.Document import Dokumen
 
 
 class ControlDokumen:
@@ -20,6 +20,5 @@ class ControlDokumen:
             isiDokumen = File.read()
             self.dokumen.setDokumen(sumber,judul,isiDokumen)
 
-
-
-
+    def getBerita(self,sumber):
+        return self.dokumen.getIsi(sumber)

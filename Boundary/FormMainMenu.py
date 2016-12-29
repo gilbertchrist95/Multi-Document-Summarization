@@ -1,7 +1,7 @@
 from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
-from Control.ControlDokumen import ControlDokumen
+from Control.ControlDocument import ControlDokumen
 
 import os
 
@@ -55,8 +55,13 @@ class FormMainMenu:
         self.tree.heading('judul', text="Judul")
         self.tree.pack(padx=10, pady=15)
 
-        self.buttonRingkas = Button(frame, text="Ringkas", command='')
+        self.buttonRingkas = Button(frame, text="Ringkas", command=frame.quit)
         self.buttonRingkas.pack()
+
+
+    
+
+
 
     def openFile(self):
         checkItem = self.tree.get_children()
@@ -70,13 +75,16 @@ class FormMainMenu:
         i = 1
         for file in self.listFile:
             dokumen = file.split('-')
-            self.tree.insert('', 'end', text=str(i), values=(dokumen[0], dokumen[1]))
+            self.tree.insert('', 'end', text=str(i), values=(dokumen[0], dokumen[1][:-4]))
             i += 1
         self.controlDokumen.simpan_dokumen(folderPath)
+
+
+
+
 
 
 if __name__ == '__main__':
     root = Tk()
     obj = FormMainMenu(root, title="Program Tugas Akhir")
-
     root.mainloop()

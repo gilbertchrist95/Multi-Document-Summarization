@@ -6,6 +6,9 @@ class Dokumen:
     def setDokumen(self, sumber, judul, isi):
         self.dokumen[sumber]=[judul, isi]
 
+    def getDokumen(self):
+        return self.dokumen
+
     def getSumber(self):
         return list(self.dokumen.keys())
 

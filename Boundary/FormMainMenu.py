@@ -77,7 +77,7 @@ class FormMainMenu:
             dokumen = file.split('-')
             self.tree.insert('', 'end', text=str(i), values=(dokumen[0], dokumen[1][:-4]))
             i += 1
-        self.controlDokumen.simpan_dokumen(folderPath)
+        self.controlDokumen.saveDocument(folderPath)
 
 
 

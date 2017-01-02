@@ -2,12 +2,13 @@ from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
 from Control.ControlDocument import ControlDokumen
+from Control.ControlPreprocessing import ControlPreprocessing
 
 import os
 
 
 class ControlForm(Tk):
-    def __init__(self,title, *args, **kwargs):
+    def __init__(self, title, *args, **kwargs):
         Tk.__init__(self, *args, **kwargs)
         self.centerWindow()
         self.title(title)
@@ -21,6 +22,9 @@ class ControlForm(Tk):
             self.frames[pageName] = frame
             frame.grid(row=0, column=0, sticky="nsew")
         self.show_frame(pageName="FormMainMenu")
+
+    def get_frame(self, pageName):
+        return self.frames[pageName]
 
     def show_frame(self, pageName):
         frame = self.frames[pageName]
@@ -38,6 +42,7 @@ class ControlForm(Tk):
 
 class FormMainMenu(Frame):
     def __init__(self, parent, controller):
+
         Frame.__init__(self, parent)
         self.controller = controller
         self.controlDokumen = ControlDokumen()
@@ -48,8 +53,8 @@ class FormMainMenu(Frame):
         mainFrame.pack(fill=BOTH, side=TOP)  # both = X and Y
 
         self.label = Label(mainFrame,
-                      text="Peringkasan Teks Multi-Dokumen dengan Menggunakan\nLatent Semantic Indexing dan\nSimilarity "
-                           "Based Histogram Clustering", font=("Times New Roman", 18))
+                           text="Peringkasan Teks Multi-Dokumen dengan Menggunakan\nLatent Semantic Indexing dan\nSimilarity "
+                                "Based Histogram Clustering", font=("Times New Roman", 18))
         self.label.pack(side=TOP, fill=X, pady=10)
 
         frameBody = Frame(mainFrame, bd='5')  # , bg='pink'
@@ -71,18 +76,17 @@ class FormMainMenu(Frame):
         self.tree.heading('judul', text="Judul")
         self.tree.pack(padx=10, pady=15)
         self.tree.bind("<Double-1>", self.OnDoubleClick)
-        # self.tree.bind("<Double-2>", self.OnDoubleClick)
-        # self.tree.bind("<Double-3>", self.OnDoubleClick)
-
         self.buttonRingkas = Button(frame, text="Ringkas", command=lambda: controller.show_frame("FormSummarization"))
         self.buttonRingkas.pack()
+        self.dokumen = {}
 
     def OnDoubleClick(self, event):
         # item = self.tree.identify('item',event.x,event.y)
-        infoBerita =  self.tree.item(self.tree.selection())['values']
-        isiBerita = self.controlDokumen.getBerita(infoBerita[0])
-        # print(isiBerita)
+        infoBerita = self.tree.item(self.tree.selection())['values']
+        # isiBerita = self.controlDokumen.getBerita(infoBerita[0])
 
+        # judulIsi = self.dokumen[infoBerita[0]]
+        print()
 
     def openFile(self):
         checkItem = self.tree.get_children()
@@ -98,10 +102,14 @@ class FormMainMenu(Frame):
             dokumen = file.split('-')
             self.tree.insert('', 'end', text=str(i), values=(dokumen[0], dokumen[1][:-4]))
             i += 1
-        self.controlDokumen.simpan_dokumen(folderPath)
+        self.controlDokumen.saveDocument(folderPath)
+        self.dokumen = self.controlDokumen.getDocument()
+
+
 
 class FormSummarization(Frame):
     def __init__(self, parent, controller):
+        self.controlPreprocessing = ControlPreprocessing()
         Frame.__init__(self, parent)
         self.controller = controller
         frame = Frame(self)
@@ -111,14 +119,14 @@ class FormSummarization(Frame):
         mainFrame.pack(fill=BOTH, side=TOP)  # both = X and Y
 
         self.judul = Label(mainFrame,
-                      text="Peringkasan Teks Multi-Dokumen dengan Menggunakan\nLatent Semantic Indexing dan\nSimilarity "
-                           "Based Histogram Clustering", font=("Times New Roman", 18))
+                           text="Peringkasan Teks Multi-Dokumen dengan Menggunakan\nLatent Semantic Indexing dan\nSimilarity "
+                                "Based Histogram Clustering", font=("Times New Roman", 18))
         self.judul.pack(side=TOP, fill=X, pady=10)
 
         frameBody = Frame(mainFrame, bd='5')
         frameBody.pack(fill=X, side=TOP)
 
-        self.label = Label(frameBody, text="Hasil Ringkasan:",anchor=W, font=("Times New Roman", 15))
+        self.label = Label(frameBody, text="Hasil Ringkasan:", anchor=W, font=("Times New Roman", 15))
         self.label.pack(side=TOP, fill=X)
 
         frameText = Frame(mainFrame, padx=25)
@@ -130,15 +138,32 @@ class FormSummarization(Frame):
         self.sbVer.pack(side=LEFT, fill=Y)
         self.textFile.config(yscrollcommand=self.sbVer.set)
 
-
         frameBottom = Frame(mainFrame, bd=5)
         frameBottom.pack(fill=X, side=BOTTOM)
 
-
         self.buttonKembali = Button(frameBottom, text="Kembali", command=lambda: controller.show_frame("FormMainMenu"))
         self.buttonKembali.pack(side=LEFT, pady=10)
-        self.buttonHitungAkurasi = Button(frameBottom, text="Hitung Akurasi", command=lambda: controller.show_frame("FormAccuration"))
+        self.buttonTest = Button(frameBottom, text="Test", command=self.doSummarization)
+        self.buttonTest.pack(side=LEFT, pady=10)
+        self.buttonHitungAkurasi = Button(frameBottom, text="Hitung Akurasi",
+                                          command=lambda: controller.show_frame("FormAccuration"))
         self.buttonHitungAkurasi.pack(side=RIGHT, pady=10)
+
+    def doSummarization(self):
+        formMainMenu = self.controller.get_frame("FormMainMenu")
+        dokumen = formMainMenu.dokumen
+        self.controlPreprocessing.doPreprocessing(dokumen)
+
+
+
+
+    def getSumber(self):
+        formMainMenu = self.controller.get_frame("FormMainMenu")
+        dokumen = formMainMenu.dokumen
+        for d in dokumen.values():
+            print(d)
+
+
 
 class FormAccuration(Frame):
     def __init__(self, parent, controller):

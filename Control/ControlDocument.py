@@ -6,7 +6,7 @@ class ControlDokumen:
     def __init__(self):
         self.dokumen = Dokumen()
 
-    def simpan_dokumen(self,folderPath):
+    def saveDocument(self, folderPath):
         self.folderPath=folderPath
 
         self.listFile = os.listdir(folderPath)
@@ -20,5 +20,8 @@ class ControlDokumen:
             isiDokumen = File.read()
             self.dokumen.setDokumen(sumber,judul,isiDokumen)
 
-    def getBerita(self,sumber):
-        return self.dokumen.getIsi(sumber)
+    def getDocument(self):
+        return self.dokumen.getDokumen()
+
+    # def getSumber(self):
+    #     return self.dokumen.getSumber()

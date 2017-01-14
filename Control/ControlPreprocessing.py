@@ -8,69 +8,68 @@ import re
 
 
 class ControlPreprocessing(ControlStemming):
-    dokumen = {}
-    newDocument = {}
+    documentPreprocessing = []
+    document = []
 
     def __init__(self):
         super(self.__class__, self).__init__()
         self.kamus = KamusStopWord()
-        # self.doPreprocessing()
-        # ControlDokumen.__init__(self)
-        # self.preprocessing = Preprocessing()
-        # self.controlDokumen = ControlDokumen()
+        self.preprocessing = Preprocessing()
 
-    def doPreprocessing(self, dokumen):
-        self.dokumen = dokumen
-        for doc in self.dokumen:
-            self.segmentationSentences(doc)
-            # # print(self.dokumen[doc])
-            self.caseFolding(doc)
-            # print(self.dokumen[doc])
-            self.tokenizing(doc)
-            # print(self.dokumen[doc])
-            self.fitering(doc)
-            # print(self.dokumen[doc])
-            self.stemming(doc)
-            # self.tokenizing()
-            # self.filtering()
+    def doPreprocessing(self, document):  # dokumen awal harus sudah jadi list,
+        self.documentPreprocessing = [value for value in document.values()]
+        n = len(self.documentPreprocessing)
+        for i in range(n):
+            self.documentPreprocessing[i].pop(0)
+            self.segmentationSentences(i)
+            # self.preprocessing.setDokumen(i,self.documentPreprocessing[i])
+            self.caseFolding(i)
+            self.tokenizing(i)
+            self.filtering(i)
+            self.stemming(i)
+        self.preprocessing.setDokumen(self.document)
+        self.preprocessing.setPreprocessingResult(self.documentPreprocessing)
 
-    def segmentationSentences(self, doc):
+    def segmentationSentences(self, i):
         pattern = re.compile("[.?!]")
-        self.dokumen[doc] = re.split(pattern, str(self.dokumen[doc][1]))
+        listSentences = (re.split(pattern, self.documentPreprocessing[i][0]))
+        listSentences.pop()
+        self.documentPreprocessing[i] = [sentence.strip() for sentence in listSentences]
+        self.document +=self.documentPreprocessing[i]
 
-    def caseFolding(self, doc):
-        delimiter = "\"", "\'", "{", "}", "(", ")", "[", "]", ">", "<", "_", "-", "=", "+", "|", "\\", ":", ",", ";", "/", "~", "@", "#", "$", "%", "^", "&", "*", "\r", "\n", "\t", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"
+    def caseFolding(self, i):
+        delimiter = "\"", "\'", "{", "“", "”", "}", "(", ")", "[", "]", ">", "<", "_", "-", "=", "+", "|", "\\", ":", ",", ";", "/", "~", "@", "#", "$", "%", "^", "&", "*", "\r", "\n", "\t", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"
         regexPattern = '|'.join(map(re.escape, delimiter))
-        self.dokumen[doc] = [re.split(regexPattern, kalimat.lower()) for kalimat in self.dokumen[doc]]
+        self.documentPreprocessing[i] = [re.split(regexPattern, kalimat.lower()) for kalimat in
+                                         self.documentPreprocessing[i]]
 
-    def tokenizing(self, doc):
-        self.dokumen[doc] = [' '.join(list).split() for list in self.dokumen[doc]]
-        self.dokumen[doc].pop()
+    def tokenizing(self, i):
+        self.documentPreprocessing[i] = [' '.join(list).split() for list in self.documentPreprocessing[i]]
 
-    def fitering(self, doc):
+    def filtering(self, i):
         var = self.kamus.read()
         LIST_STOP_WORD = var.split()
-        n = self.dokumen[doc].__len__()
-        i = 0
-        while i < n:
-            self.dokumen[doc][i] = (list(token for token in self.dokumen[doc][i] if token not in LIST_STOP_WORD))
-            i += 1
+        n = self.documentPreprocessing[i].__len__()
+        for j in range(0, n):
+            self.documentPreprocessing[i][j] = (
+                list(token for token in self.documentPreprocessing[i][j] if token not in LIST_STOP_WORD))
 
-    def stemming(self, doc):
-        # ControlStemming.stemming(doc
-        n = self.dokumen[doc].__len__()
-        i = 0
-        while i < n:
-            self.dokumen[doc][i] = ControlStemming.stemming(self, kalimat=self.dokumen[doc][i])
-            i += 1
+    def stemming(self, i):
+        n = self.documentPreprocessing[i].__len__()
+        for j in range(0, n):
+            self.documentPreprocessing[i][j] = ControlStemming.stemming(self, kalimat=self.documentPreprocessing[i][j])
 
+    def getSentencesDocument(self):
+        return self.preprocessing.getDokumen()
 
+    def getPreprocessing(self):
+        return self.preprocessing.getPreprocessingResult()
 
 
 
             # def segmentationSentences(self):
             #     # print(self.dokumen.keys())
-            #     # i=1
+            #     # j=1
             #     pattern = re.compile("[.?!]")
             #     for doc in self.dokumen:
             #         isi = str(self.dokumen[doc][1])

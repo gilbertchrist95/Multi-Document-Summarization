@@ -3,6 +3,7 @@ from tkinter import ttk
 from tkinter import filedialog
 from Control.ControlDocument import ControlDokumen
 from Control.ControlPreprocessing import ControlPreprocessing
+from Control.ControlSummarization import ControlSummarization
 
 import os
 
@@ -42,7 +43,6 @@ class ControlForm(Tk):
 
 class FormMainMenu(Frame):
     def __init__(self, parent, controller):
-
         Frame.__init__(self, parent)
         self.controller = controller
         self.controlDokumen = ControlDokumen()
@@ -80,6 +80,7 @@ class FormMainMenu(Frame):
         self.buttonRingkas.pack()
         self.dokumen = {}
 
+    #belum di pakai
     def OnDoubleClick(self, event):
         # item = self.tree.identify('item',event.x,event.y)
         infoBerita = self.tree.item(self.tree.selection())['values']
@@ -106,10 +107,10 @@ class FormMainMenu(Frame):
         self.dokumen = self.controlDokumen.getDocument()
 
 
-
 class FormSummarization(Frame):
     def __init__(self, parent, controller):
         self.controlPreprocessing = ControlPreprocessing()
+        self.controlSummarization = ControlSummarization()
         Frame.__init__(self, parent)
         self.controller = controller
         frame = Frame(self)
@@ -153,16 +154,15 @@ class FormSummarization(Frame):
         formMainMenu = self.controller.get_frame("FormMainMenu")
         dokumen = formMainMenu.dokumen
         self.controlPreprocessing.doPreprocessing(dokumen)
-
-
-
+        sentencesDocument = self.controlPreprocessing.getSentencesDocument()
+        preprocessingResult = self.controlPreprocessing.getPreprocessing()
+        self.controlSummarization.doSummarization(preprocessingResult,sentencesDocument)
 
     def getSumber(self):
         formMainMenu = self.controller.get_frame("FormMainMenu")
         dokumen = formMainMenu.dokumen
         for d in dokumen.values():
             print(d)
-
 
 
 class FormAccuration(Frame):

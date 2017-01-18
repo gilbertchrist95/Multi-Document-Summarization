@@ -12,18 +12,17 @@ class ControlSummarization:
         self.sentencesClustering(preprocessingResult, sentencesDocument)
 
     def sentencesClustering(self, preprocessingResult, sentencesDocument):
+        print(len(sentencesDocument))
         similarity = self.latentSemancticIndexing(preprocessingResult)
-        # self.similarityHistogramClustering(similarity, sentencesDocument)
+        print(len(similarity))
+        listCluster = self.similarityHistogramClustering(similarity, sentencesDocument)
+        print(listCluster)
 
     def latentSemancticIndexing(self, preprocessingResult):
         term, matrix = self.setMatrix(preprocessingResult)
-        # for i in matrix:
-        #     print(i)
         U, S, Vt = self.singularValueDecomposition(matrix)
-
         similarity = self.countSimilarity(term, preprocessingResult, U, S, Vt)
-
-        return 0
+        return similarity
 
     def setMatrix(self, preprocessingResult):
         matrix = []
@@ -54,13 +53,16 @@ class ControlSummarization:
 
     def countSimilarity(self, term, preprocessingResult, U, S, Vt):
 
-        US = [[0 for i in range(len(S))] for j in range(len(U))]
-        SVt = [[0 for i in range(len(Vt))] for j in range(len(S))]
+        # US = [[0 for i in range(len(S))] for j in range(len(U))]
+        US = [x[:] for x in [[0] * len(S)] * len(U)]
+        # SVt = [[0 for i in range(len(Vt))] for j in range(len(S))]
+        SVt = [x[:] for x in [[0] * len(Vt)] * len(S)]
         # USVt = [[0 for i in range(len(Vt))] for j in range(len(US))]
-        similarity = [[0 for i in range(len(SVt))] for j in range(len(US[0]))]
-        print(len(similarity))
-        print(len(similarity[0]))
-        print()
+        # similarity = [[0 for i in range(len(SVt))] for j in range(len(US[0]))]
+        similarity = [x[:] for x in [[0] * len(SVt)] * len(US[0])]
+        # print(len(similarity))
+        # print(len(similarity[0]))
+        # print()
         for i in range(len(U)):
             for j in range(len(S)):
                 US[i][j] = U[i][j] * S[j]
@@ -71,16 +73,20 @@ class ControlSummarization:
         n = 0
         for doc in preprocessingResult:
             for sentence in doc:
-                q = [0 for i in range(len(US[0]))]
+                q = [0]*len(US[0])
                 for token in sentence:
                     q = [i + j for i, j in zip(q, US[term.index(token)])]
+                # print(sentence)
                 q = [i / len(sentence) for i in q]
                 qq = sqrt(sum(map(lambda x: x ** 2, q)))
                 for i in range(n, len(SVt[0])):
                     d = [row[i] for row in SVt]
                     dd = sqrt(sum(map(lambda x: x ** 2, d)))
                     # print(str(n)+" "+str(i))
-                    similarity[n][i] = sum(map(lambda x,y:x*y, q, d)) / (qq * dd)
+                    if n==i:
+                        similarity[n][i] = 1
+                    else:
+                        similarity[n][i] = sum(map(lambda x,y:x*y, q, d)) / (qq * dd)
                 n += 1
 
         for y in similarity:
@@ -93,7 +99,55 @@ class ControlSummarization:
         return similarity
 
     def similarityHistogramClustering(self, similarity, sentencesDocument):
-        print('SHC belom')
+
+        if len(similarity)!=len(sentencesDocument):
+            print('something wrong  !')
+            exit()
+
+        listCluster = []
+        c = [0]
+        listCluster.append(c)
+
+        def countHistogramRatio(cluster, similarity):
+            print(cluster)
+            st = 0.5
+            count = 0
+            n = len(cluster)
+            if n > 1:
+                for i in range(0, n - 1):
+                    for j in range(i + 1, n):
+                        if (similarity[i][j] > st - 0.05):
+                            count += 1
+                return count / (n * (n - 1) / 2)
+            else:
+                return 0
+
+        for i in range(1, len(similarity)):
+            foundCluster = False
+            for cluster in listCluster:
+                HRold = countHistogramRatio(cluster, similarity)
+                (cluster).append(i)
+                HRnew = countHistogramRatio(cluster, similarity)
+                print(HRold)
+                print(HRnew)
+                if ((HRnew >= HRold) or ((HRnew > 0.4) and (HRold - HRnew) < 0.01)):
+                    foundCluster = True
+                else:
+                    cluster.pop()
+            if foundCluster is False:
+                c = [i]
+                listCluster.append(c)
+
+        return listCluster
+        # for i in range(1,len(sentencesDocument)):
+        #     foundCluster = False
+        #     for cluster in listCluster:
+        #         HRold = HRc = 0
+
+
+
+
+
 
         # def clusteringkalimat2(self, dokumen):
         #     self.setMatrix(dokumen)

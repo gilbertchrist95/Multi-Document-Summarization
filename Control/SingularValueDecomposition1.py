@@ -9,18 +9,12 @@ class SingularValueDecomposition:
 
         self.nu = min(self.m, self.n)
 
-        # self.S = [0 for i in range(min())]
-        self.S = [0]*min(self.m + 1, self.n)
+        self.S = [0 for i in range(min(self.m + 1, self.n))]
+        self.U = [[0 for i in range(self.nu)] for j in range(self.m)]
+        self.V = [[0 for i in range(self.n)] for j in range(self.n)]
 
-        # self.U = [[0 for i in range(self.nu)] for j in range(self.m)]
-        self.U = [x[:] for x in [[0] * self.nu] * self.m]
-        # self.V = [[0 for i in range(self.n)] for j in range(self.n)]
-        self.V = [x[:] for x in [[0] * self.n] * self.n]
-
-        # self.e = [0 for i in range(self.n)]
-        self.e = [0]*self.n
-        # self.work = [0 for i in range(self.m)]
-        self.work = [0]*self.m
+        self.e = [0 for i in range(self.n)]
+        self.work = [0 for i in range(self.m)]
 
         self.wantU = True
         self.wantV = True
@@ -29,7 +23,7 @@ class SingularValueDecomposition:
         self.nrt = max(0, (min(self.n - 2, self.m)))
 
     def hitung(self):
-        for k in range(max(self.nct, self.nrt)):
+        for k in range(0, max(self.nct, self.nrt)):
             if k < self.nct:
                 self.S[k] = 0
                 for i in range(k, self.m):
@@ -136,6 +130,7 @@ class SingularValueDecomposition:
         tiny = pow(2.0, -966.0)
 
         while p > 0:
+
             for k in range(p - 2, -2, -1):
                 if k == -1:
                     break
@@ -283,6 +278,7 @@ class SingularValueDecomposition:
 
     def getV(self):
         return self.V
+
 
 # x = [[0 for i in range(5)] for j in range(8)]
 # x[0] = [1, 0, 1, 0, 0]

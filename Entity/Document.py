@@ -18,6 +18,9 @@ class Dokumen:
     def getIsi (self,sumber):
         return str(self.dokumen[sumber][1])
 
+    def clear(self):
+        self.dokumen.clear()
+
 
 
 

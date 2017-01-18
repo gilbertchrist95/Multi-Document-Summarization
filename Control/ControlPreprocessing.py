@@ -1,7 +1,4 @@
-from pip._vendor.distlib.database import new_dist_class
-
 from Entity.Preprocessing import Preprocessing
-from Control.ControlDocument import ControlDokumen
 from Control.ControlStemming import ControlStemming
 from Entity.KamusStopword import KamusStopWord
 import re
@@ -17,16 +14,18 @@ class ControlPreprocessing(ControlStemming):
         self.preprocessing = Preprocessing()
 
     def doPreprocessing(self, document):  # dokumen awal harus sudah jadi list,
+        self.documentPreprocessing.clear()
+        self.document.clear()
         self.documentPreprocessing = [value for value in document.values()]
         n = len(self.documentPreprocessing)
         for i in range(n):
             self.documentPreprocessing[i].pop(0)
             self.segmentationSentences(i)
-            # self.preprocessing.setDokumen(i,self.documentPreprocessing[i])
             self.caseFolding(i)
             self.tokenizing(i)
             self.filtering(i)
             self.stemming(i)
+            self.documentPreprocessing[i] = list(filter(None, self.documentPreprocessing[i]))
         self.preprocessing.setDokumen(self.document)
         self.preprocessing.setPreprocessingResult(self.documentPreprocessing)
 
@@ -35,7 +34,7 @@ class ControlPreprocessing(ControlStemming):
         listSentences = (re.split(pattern, self.documentPreprocessing[i][0]))
         listSentences.pop()
         self.documentPreprocessing[i] = [sentence.strip() for sentence in listSentences]
-        self.document +=self.documentPreprocessing[i]
+        self.document += self.documentPreprocessing[i]
 
     def caseFolding(self, i):
         delimiter = "\"", "\'", "{", "“", "”", "}", "(", ")", "[", "]", ">", "<", "_", "-", "=", "+", "|", "\\", ":", ",", ";", "/", "~", "@", "#", "$", "%", "^", "&", "*", "\r", "\n", "\t", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"
@@ -67,28 +66,28 @@ class ControlPreprocessing(ControlStemming):
 
 
 
-            # def segmentationSentences(self):
-            #     # print(self.dokumen.keys())
-            #     # j=1
-            #     pattern = re.compile("[.?!]")
-            #     for doc in self.dokumen:
-            #         isi = str(self.dokumen[doc][1])
-            #         segmen=re.split(pattern, isi)
-            #         segmen.pop()
-            #         self.newDocument[doc]=segmen
+        # def segmentationSentences(self):
+        #     # print(self.dokumen.keys())
+        #     # j=1
+        #     pattern = re.compile("[.?!]")
+        #     for doc in self.dokumen:
+        #         isi = str(self.dokumen[doc][1])
+        #         segmen=re.split(pattern, isi)
+        #         segmen.pop()
+        #         self.newDocument[doc]=segmen
 
-            # def caseFolding(self):
-            #     for doc in self.newDocument:
-            #         isi = self.newDocument[doc]
-            #         self.newDocument[doc]= [kalimat.lower() for kalimat in isi]
-            #         print(self.newDocument[doc])
+        # def caseFolding(self):
+        #     for doc in self.newDocument:
+        #         isi = self.newDocument[doc]
+        #         self.newDocument[doc]= [kalimat.lower() for kalimat in isi]
+        #         print(self.newDocument[doc])
 
-            # def tokenizing(self):
-            #     for doc in self.newDocument:
-            #         list =[]
-            #         isiBerita = (self.newDocument[doc])
-            #         for kalimat in isiBerita:
-            #             list.append(kalimat.split())
-            #         self.newDocument[doc]=list
+        # def tokenizing(self):
+        #     for doc in self.newDocument:
+        #         list =[]
+        #         isiBerita = (self.newDocument[doc])
+        #         for kalimat in isiBerita:
+        #             list.append(kalimat.split())
+        #         self.newDocument[doc]=list
 
-            # def filtering(self):
+        # def filtering(self):

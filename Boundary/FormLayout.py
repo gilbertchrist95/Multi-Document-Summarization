@@ -76,11 +76,14 @@ class FormMainMenu(Frame):
         self.tree.heading('judul', text="Judul")
         self.tree.pack(padx=10, pady=15)
         self.tree.bind("<Double-1>", self.OnDoubleClick)
+
+        self.buttonReset = Button(frame, text="Reset", command=self.resetDocument)
+        self.buttonReset.pack(side=LEFT, padx=10)
         self.buttonRingkas = Button(frame, text="Ringkas", command=lambda: controller.show_frame("FormSummarization"))
-        self.buttonRingkas.pack()
+        self.buttonRingkas.pack(side= TOP,padx=50)
         self.dokumen = {}
 
-    #belum di pakai
+    # belum di pakai
     def OnDoubleClick(self, event):
         # item = self.tree.identify('item',event.x,event.y)
         infoBerita = self.tree.item(self.tree.selection())['values']
@@ -89,6 +92,11 @@ class FormMainMenu(Frame):
         # judulIsi = self.dokumen[infoBerita[0]]
         print()
 
+    def resetDocument(self):
+        self.entryBrowse.delete(0, END)
+        self.controlDokumen.resetDocument()
+        self.tree.delete(*self.tree.get_children())
+
     def openFile(self):
         checkItem = self.tree.get_children()
         if checkItem != '()':
@@ -96,15 +104,16 @@ class FormMainMenu(Frame):
                 self.tree.delete(row)
 
         folderPath = filedialog.askdirectory()
-        self.entryBrowse.insert(0, (folderPath))
-        self.listFile = os.listdir(folderPath)
-        i = 1
-        for file in self.listFile:
-            dokumen = file.split('-')
-            self.tree.insert('', 'end', text=str(i), values=(dokumen[0], dokumen[1][:-4]))
-            i += 1
-        self.controlDokumen.saveDocument(folderPath)
-        self.dokumen = self.controlDokumen.getDocument()
+        if folderPath:
+            self.entryBrowse.insert(0, (folderPath))
+            self.listFile = os.listdir(folderPath)
+            i = 1
+            for file in self.listFile:
+                dokumen = file.split('-')
+                self.tree.insert('', 'end', text=str(i), values=(dokumen[0], dokumen[1][:-4]))
+                i += 1
+            self.controlDokumen.saveDocument(folderPath)
+            self.dokumen = self.controlDokumen.getDocument()
 
 
 class FormSummarization(Frame):
@@ -156,7 +165,7 @@ class FormSummarization(Frame):
         self.controlPreprocessing.doPreprocessing(dokumen)
         sentencesDocument = self.controlPreprocessing.getSentencesDocument()
         preprocessingResult = self.controlPreprocessing.getPreprocessing()
-        self.controlSummarization.doSummarization(preprocessingResult,sentencesDocument)
+        self.controlSummarization.doSummarization(preprocessingResult, sentencesDocument)
 
     def getSumber(self):
         formMainMenu = self.controller.get_frame("FormMainMenu")

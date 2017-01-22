@@ -6,6 +6,7 @@ from Control.ControlPreprocessing import ControlPreprocessing
 from Control.ControlSummarization import ControlSummarization
 
 import os
+import time
 
 
 class ControlForm(Tk):
@@ -22,12 +23,12 @@ class ControlForm(Tk):
             frame = F(parent=container, controller=self)
             self.frames[pageName] = frame
             frame.grid(row=0, column=0, sticky="nsew")
-        self.show_frame(pageName="FormMainMenu")
+        self.showFrame(pageName="FormMainMenu")
 
-    def get_frame(self, pageName):
+    def getFrame(self, pageName):
         return self.frames[pageName]
 
-    def show_frame(self, pageName):
+    def showFrame(self, pageName):
         frame = self.frames[pageName]
         frame.tkraise()
 
@@ -43,15 +44,15 @@ class ControlForm(Tk):
 
 class FormMainMenu(Frame):
     def __init__(self, parent, controller):
-        Frame.__init__(self, parent)
         self.controller = controller
         self.controlDokumen = ControlDokumen()
+
+        Frame.__init__(self, parent)
         frame = Frame(self)
         frame.pack(fill=BOTH, expand=YES)
 
         mainFrame = Frame(frame, bd=0)  # , bg = 'blue'
         mainFrame.pack(fill=BOTH, side=TOP)  # both = X and Y
-
         self.label = Label(mainFrame,
                            text="Peringkasan Teks Multi-Dokumen dengan Menggunakan\nLatent Semantic Indexing dan\nSimilarity "
                                 "Based Histogram Clustering", font=("Times New Roman", 18))
@@ -59,10 +60,8 @@ class FormMainMenu(Frame):
 
         frameBody = Frame(mainFrame, bd='5')  # , bg='pink'
         frameBody.pack(fill=X, side=TOP)
-
         self.entryBrowse = Entry(frameBody, width=120)
         self.entryBrowse.pack(side=LEFT)
-
         self.buttonBrowse = Button(frameBody, text='Browse', command=self.openFile)
         self.buttonBrowse.pack(side=LEFT, padx=10)
 
@@ -79,9 +78,10 @@ class FormMainMenu(Frame):
 
         self.buttonReset = Button(frame, text="Reset", command=self.resetDocument)
         self.buttonReset.pack(side=LEFT, padx=10)
-        self.buttonRingkas = Button(frame, text="Ringkas", command=lambda: controller.show_frame("FormSummarization"))
+        self.buttonRingkas = Button(frame, text="Ringkas", command=lambda: controller.showFrame("FormSummarization"))
         self.buttonRingkas.pack(side= TOP,padx=50)
-        self.dokumen = {}
+
+        self.dokumen = []
 
     # belum di pakai
     def OnDoubleClick(self, event):
@@ -104,6 +104,7 @@ class FormMainMenu(Frame):
                 self.tree.delete(row)
 
         folderPath = filedialog.askdirectory()
+        # print(folderPath)
         if folderPath:
             self.entryBrowse.insert(0, (folderPath))
             self.listFile = os.listdir(folderPath)
@@ -120,6 +121,7 @@ class FormSummarization(Frame):
     def __init__(self, parent, controller):
         self.controlPreprocessing = ControlPreprocessing()
         self.controlSummarization = ControlSummarization()
+
         Frame.__init__(self, parent)
         self.controller = controller
         frame = Frame(self)
@@ -127,7 +129,6 @@ class FormSummarization(Frame):
 
         mainFrame = Frame(frame, bd=0)  # , bg = 'blue'
         mainFrame.pack(fill=BOTH, side=TOP)  # both = X and Y
-
         self.judul = Label(mainFrame,
                            text="Peringkasan Teks Multi-Dokumen dengan Menggunakan\nLatent Semantic Indexing dan\nSimilarity "
                                 "Based Histogram Clustering", font=("Times New Roman", 18))
@@ -135,7 +136,6 @@ class FormSummarization(Frame):
 
         frameBody = Frame(mainFrame, bd='5')
         frameBody.pack(fill=X, side=TOP)
-
         self.label = Label(frameBody, text="Hasil Ringkasan:", anchor=W, font=("Times New Roman", 15))
         self.label.pack(side=TOP, fill=X)
 
@@ -151,24 +151,25 @@ class FormSummarization(Frame):
         frameBottom = Frame(mainFrame, bd=5)
         frameBottom.pack(fill=X, side=BOTTOM)
 
-        self.buttonKembali = Button(frameBottom, text="Kembali", command=lambda: controller.show_frame("FormMainMenu"))
+        self.buttonKembali = Button(frameBottom, text="Kembali", command=lambda: controller.showFrame("FormMainMenu"))
         self.buttonKembali.pack(side=LEFT, pady=10)
         self.buttonTest = Button(frameBottom, text="Test", command=self.doSummarization)
         self.buttonTest.pack(side=LEFT, pady=10)
         self.buttonHitungAkurasi = Button(frameBottom, text="Hitung Akurasi",
-                                          command=lambda: controller.show_frame("FormAccuration"))
+                                          command=lambda: controller.showFrame("FormAccuration"))
         self.buttonHitungAkurasi.pack(side=RIGHT, pady=10)
 
     def doSummarization(self):
-        formMainMenu = self.controller.get_frame("FormMainMenu")
+        formMainMenu = self.controller.getFrame("FormMainMenu")
         dokumen = formMainMenu.dokumen
         self.controlPreprocessing.doPreprocessing(dokumen)
         sentencesDocument = self.controlPreprocessing.getSentencesDocument()
         preprocessingResult = self.controlPreprocessing.getPreprocessing()
-        self.controlSummarization.doSummarization(preprocessingResult, sentencesDocument)
+        listSentence = self.controlSummarization.doSummarization(preprocessingResult, sentencesDocument)
+
 
     def getSumber(self):
-        formMainMenu = self.controller.get_frame("FormMainMenu")
+        formMainMenu = self.controller.getFrame("FormMainMenu")
         dokumen = formMainMenu.dokumen
         for d in dokumen.values():
             print(d)
@@ -191,5 +192,19 @@ class FormAccuration(Frame):
 
 
 if __name__ == "__main__":
-    app = ControlForm(title="Program Tugas Akhir")
-    app.mainloop()
+    # app = ControlForm(title="Program Tugas Akhir")
+    # app.mainloop()
+    controlDokumen = ControlDokumen()
+    controlPreprocessing = ControlPreprocessing()
+    controlSummarization = ControlSummarization()
+    start = time.time()
+    folderPath = 'D:/Dropbox/TA/Berita/1. Mi Notebook Air'
+    controlDokumen.saveDocument(folderPath)
+    dokumen = controlDokumen.getDocument()
+    controlPreprocessing.doPreprocessing(dokumen)
+    sentencesDocument = controlPreprocessing.getSentencesDocument()
+    preprocessingResult = controlPreprocessing.getPreprocessing()
+    print("preprocessing selesai")
+    listSentence = controlSummarization.doSummarization(preprocessingResult, sentencesDocument)
+    end = time.time()
+    print(end - start)

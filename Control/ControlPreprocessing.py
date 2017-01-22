@@ -16,10 +16,9 @@ class ControlPreprocessing(ControlStemming):
     def doPreprocessing(self, document):  # dokumen awal harus sudah jadi list,
         self.documentPreprocessing.clear()
         self.document.clear()
-        self.documentPreprocessing = [value for value in document.values()]
+        self.documentPreprocessing = document
         n = len(self.documentPreprocessing)
         for i in range(n):
-            self.documentPreprocessing[i].pop(0)
             self.segmentationSentences(i)
             self.caseFolding(i)
             self.tokenizing(i)
@@ -33,7 +32,7 @@ class ControlPreprocessing(ControlStemming):
         pattern = re.compile("[.?!]")
         listSentences = (re.split(pattern, self.documentPreprocessing[i][0]))
         listSentences.pop()
-        self.documentPreprocessing[i] = [sentence.strip() for sentence in listSentences]
+        self.documentPreprocessing[i] = [sentence.strip() for sentence in listSentences] #strip list empty sentence
         self.document += self.documentPreprocessing[i]
 
     def caseFolding(self, i):

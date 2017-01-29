@@ -1,45 +1,50 @@
-from threading import Thread
 from math import sqrt
 from math import log10
 from Control.SingularValueDecomposition import SingularValueDecomposition
+from Entity.EntitySummarization import EntitySummarization
+import time
 
 
 class ControlSummarization:
+    entitySummaries = EntitySummarization()
 
     def doSummarization(self, preprocessingResult, sentencesDocument):
-        document = [item for sublist in preprocessingResult for item in sublist]
-        similarity, listCluster = self.sentencesClustering(preprocessingResult, sentencesDocument)
-        weight = self.clusterOrdering(listCluster, document)
-        # weight = self.clusterOrdering(listCluster, document)
+        # start = time.time()
+        # end = time.time()
+        # print(end - start)
+        similarity, listCluster = self.sentencesClustering(preprocessingResult)
+        # weight = self.clusterOrdering(listCluster, preprocessingResult)
         listSentence = self.representativeSelection(similarity, sentencesDocument, listCluster)
-        # listSentence = self.representativeSelection(similarity, sentencesDocument, listCluster)
-        return listSentence
+        self.entitySummaries.setSummary(listSentence)
 
-    def sentencesClustering(self, preprocessingResult, sentencesDocument):
+    def getResultSummary(self):
+        return self.entitySummaries.getSummary()
+
+    def sentencesClustering(self, preprocessingResult):
         similarity = self.latentSemancticIndexing(preprocessingResult)
-        if len(similarity) != len(sentencesDocument):
-            print('something wrong  !')
-            exit()
         listCluster = self.similarityHistogramClustering(similarity)
         return similarity, listCluster
 
+    def latentSemancticIndexing(self, preprocessingResult):
+        term, matrix = self.setMatrix(preprocessingResult)
+        U, S, Vt = self.singularValueDecomposition(matrix)
+        similarity = self.countSimilarity(term, preprocessingResult, U, S, Vt)
+        return similarity
+
     def setMatrix(self, preprocessingResult):
-        matrix = []
-        term = []
-        nColumn = 0
+        matrix = [] #term x sentence
+        term = [] #term x 1
         iColumn = 0
-        for doc in preprocessingResult:
-            nColumn += len(doc)
-        for doc in preprocessingResult:
-            for sentence in doc:
-                for token in sentence:
-                    if token in term:
-                        matrix[term.index(token)][iColumn] += 1
-                    else:
-                        term.append(token)
-                        matrix.append([0] * nColumn)
-                        matrix[len(term) - 1][iColumn] = 1
-                iColumn += 1
+        nColumn = len(preprocessingResult)
+        for sentence in preprocessingResult:
+            for token in sentence:
+                if token in term:
+                    matrix[term.index(token)][iColumn] += 1
+                else:
+                    term.append(token)
+                    matrix.append([0] * nColumn)
+                    matrix[len(term) - 1][iColumn] = 1
+            iColumn += 1
         return term, matrix
 
     def singularValueDecomposition(self, matrix):
@@ -58,9 +63,7 @@ class ControlSummarization:
         SVt = [x[:] for x in [[0] * len(Vt)] * len(S)]
         # USVt = [[0 for i in range(len(Vt))] for j in range(len(US))]
         # similarity = [[0 for i in range(len(SVt))] for j in range(len(US[0]))]
-        similarity = [x[:] for x in [[0] * len(SVt)] * len(US[0])]
-        # print(len(similarity))
-        # print(len(similarity[0]))
+        similarity = [x[:] for x in [[0] * len(SVt)] * len(SVt[0])]
         for i in range(len(U)):
             for j in range(len(S)):
                 US[i][j] = U[i][j] * S[j]
@@ -68,41 +71,45 @@ class ControlSummarization:
             for j in range(len(Vt)):
                 SVt[i][j] = S[i] * Vt[i][j]
 
+        # for i in range(len(SVt[0])):
+        #     q = [row[i] for row in SVt]
+        #     qq = sqrt(sum(map(lambda x: x ** 2, q)))
+        #     for j in range(i, len(SVt[0])):
+        #         d = [row[j] for row in SVt]
+        #         dd = sqrt(sum(map(lambda x: x ** 2, d)))
+        #         if i!=j:
+        #             similarity[i][j] = sum(map(lambda x, y: x * y, q, d)) / (qq * dd)
+
         n = 0
-        for doc in preprocessingResult:
-            for sentence in doc:
+        for sentence in preprocessingResult:
                 q = [0] * len(US[0])
                 for token in sentence:
                     q = [i + j for i, j in zip(q, US[term.index(token)])]
-                # print(sentence)
                 q = [i / len(sentence) for i in q]
                 qq = sqrt(sum(map(lambda x: x ** 2, q)))
                 for i in range(n, len(SVt[0])):
                     d = [row[i] for row in SVt]
                     dd = sqrt(sum(map(lambda x: x ** 2, d)))
-                    # print(str(n)+" "+str(i))
                     if n != i:
-                        similarity[n][i] = similarity[i][n] = sum(map(lambda x, y: x * y, q, d)) / (qq * dd)
+                        # similarity[n][i] = similarity[i][n] = sum(map(lambda x, y: x * y, q, d)) / (qq * dd)
+                        similarity[n][i] = sum(map(lambda x, y: x * y, q, d)) / (qq * dd)
                 n += 1
         return similarity
 
-    def latentSemancticIndexing(self, preprocessingResult):
-        term, matrix = self.setMatrix(preprocessingResult)
-        U, S, Vt = self.singularValueDecomposition(matrix)
-        similarity = self.countSimilarity(term, preprocessingResult, U, S, Vt)
-        return similarity
-
     def similarityHistogramClustering(self, similarity):
-        HRmin = 0.7
-        epsilon = 0.2
+        HRmin = 0.6
+        epsilon = 0.4
+        print("Hrmin:"+str(HRmin))
+        print("epsilon:"+str(epsilon))
+
         listCluster = []
         c = [0]
         listCluster.append(c)
         HRold = [0]
         HRnew = [0]
 
-        def countHistogramRatio(cluster, similarity):
-            similarityThreshold = 0.6
+        def countHistogramRatio(cluster):
+            similarityThreshold = 0.7
             count = 0
             n = len(cluster)
             if n > 1:
@@ -110,7 +117,7 @@ class ControlSummarization:
                     x = cluster[i]
                     for j in range(i + 1, n):
                         y = cluster[j]
-                        if (similarity[x][y] > similarityThreshold - 0.05):
+                        if similarity[x][y] > (similarityThreshold - 0.05):
                             count += 1
                 return count / (n * (n - 1) / 2)
             else:
@@ -119,22 +126,23 @@ class ControlSummarization:
         for i in range(1, len(similarity)):
             foundCluster = False
             for j in range(len(listCluster)):
-                if HRold[j] == 0:
-                    HRold[j] = countHistogramRatio(listCluster[j], similarity)
-                listCluster[j].append(i)
-                HRnew[j] = countHistogramRatio(listCluster[j], similarity)
-                if (HRnew[j] >= HRold[j]) or ((HRnew[j] > HRmin) and (HRold[j] - HRnew[j]) < epsilon):
-                    foundCluster = True
-                    HRnew[j] = HRold[j]
-                else:
-                    listCluster[j].pop()
+                if foundCluster is False:
+                    if HRold[j] == 0:
+                        HRold[j] = countHistogramRatio(listCluster[j])
+                    listCluster[j].append(i)
+                    HRnew[j] = countHistogramRatio(listCluster[j])
+                    if (HRnew[j] >= HRold[j]) or ((HRnew[j] > HRmin) and (HRold[j] - HRnew[j]) < epsilon):
+                        foundCluster = True
+                        HRnew[j] = HRold[j]
+                    else:
+                        listCluster[j].pop()
             if foundCluster is False:
                 c = [i]
                 listCluster.append(c)
                 HRold.append(0)
                 HRnew.append(0)
-
         return listCluster
+
 
     def clusterOrdering(self, listCluster, document):
         threshold = 10
@@ -154,27 +162,37 @@ class ControlSummarization:
             weight.append(w)
         return weight
 
+
     def representativeSelection(self, similarity, sentencesDocument, listCluster):
-        threshold = 0.5
+        threshold = 0.6
         listSentence = []
+        maxW=[]
 
-        maxW=[0]*len(listCluster)
+        for i in range(len(listCluster)):            #ex:[[1,2,4,5],[12,13,14,15],..[21,24,29]]
+            max = []
+            for j in listCluster[i]:                #EX= [1,2,3,4,5]
+                max.append(0)
+                for k in listCluster[i]:
+                    if similarity[j][k]>max[-1]:
+                        max[-1]=similarity[j][k]
+            maxW.append(sum(max))
+        print(maxW)
 
-        for i in range(len(listCluster)):
-            for j in listCluster[i]:
-                maxW[i]+=(max(similarity[j]))
-
-        for i in range(len(listCluster)):
+        for i in range(len(listCluster)): #ex:[[1,2,4,5],[12,13,14,15],..[21,24,29]]
             W = 0
             x = -1
             Fsid=0
-            for j in listCluster[i]:
-                for k in listCluster[i]:
+            for j in listCluster[i]: #ex:[1,2,3,4]
+                for k in listCluster[i]: #ex:[1,2,3,4]
                     if similarity[j][k]>threshold:
                         W+=similarity[j][k]
-                if (W/maxW[i])>Fsid:
-                    x = j
-                    Fsid = W/maxW[i]
-            listSentence.append(sentencesDocument[x]+".")
 
+                if (maxW[i]>0):
+                    if (W/maxW[i])>Fsid:
+                        x = j
+                        Fsid = W/maxW[i]
+            listSentence.append(sentencesDocument[x]+".")
         return listSentence
+
+
+

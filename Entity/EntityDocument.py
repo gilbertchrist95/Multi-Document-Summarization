@@ -1,17 +1,17 @@
 
-class Dokumen:
+class EntityDokumen:
     def __init__(self):
-        self.dokumen = []
+        self.document = []
         self.summaries = {}
 
-    def setDokumen(self, dokumen):
-        self.dokumen = dokumen
+    def setDocument(self, document):
+        self.document = document
 
-    def getDokumen(self):
-        return self.dokumen
+    def getDocument(self):
+        return self.document
 
     def clear(self):
-        self.dokumen.clear()
+        self.document.clear()
 
     def setSummaries(self, summaries):
         self.summaries = summaries

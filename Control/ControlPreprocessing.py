@@ -1,22 +1,21 @@
-from Entity.EntityPreprocessing import Preprocessing
+from Entity.EntityPreprocessing import EntityPreprocessing
 from Control.ControlStemming import ControlStemming
 from Control.ControlFiltering import ControlFiltering
 
 import re
 
 
-class ControlPreprocessing(ControlStemming):
+class ControlPreprocessing():
     documentPreprocessing = []
     document = []
 
     def __init__(self):
-        super(self.__class__, self).__init__()
-
+        # super(self.__class__, self).__init__()
         self.controlFiltering = ControlFiltering()
-        self.preprocessing = Preprocessing()
+        self.preprocessing = EntityPreprocessing()
         self.controlStemming = ControlStemming()
 
-    def doPreprocessing(self, document):  # dokumen awal harus sudah jadi list,
+    def doPreprocessing(self, document):
         self.documentPreprocessing.clear()
         self.document.clear()
         self.documentPreprocessing = document
@@ -28,11 +27,10 @@ class ControlPreprocessing(ControlStemming):
             self.filtering(i)
             self.stemming(i)
             self.documentPreprocessing[i] = list(filter(None, self.documentPreprocessing[i]))
-            print(len(self.document[i]) == len(self.documentPreprocessing[i]))
-
         dokumen = []
         dokumenProcessing = []
         maximumSentence = max(len(l) for l in self.documentPreprocessing)
+
         for i in range(maximumSentence):
             for l in self.document:
                 if not l == []:
@@ -41,7 +39,13 @@ class ControlPreprocessing(ControlStemming):
                 if not k == []:
                     dokumenProcessing.append(k.pop(0))
 
-        self.preprocessing.setDokumen(dokumen)
+        if len(dokumenProcessing) != len(dokumen):
+            print(maximumSentence)
+            print(len(dokumen))
+            print('something wrong')
+            exit
+
+        self.preprocessing.setDocument(dokumen)
         self.preprocessing.setPreprocessingResult(dokumenProcessing)
 
     def segmentationSentences(self, i):
@@ -61,51 +65,15 @@ class ControlPreprocessing(ControlStemming):
         self.documentPreprocessing[i] = [' '.join(list).split() for list in self.documentPreprocessing[i]]
 
     def filtering(self, i):
-        self.documentPreprocessing[i]= self.controlFiltering.doFiltering(self.documentPreprocessing[i])
-        # var = self.kamus.read()
-        # LIST_STOP_WORD = var.split()
-        # n = self.documentPreprocessing[i].__len__()
-        # for j in range(0, n):
-        #     self.documentPreprocessing[i][j] = (
-        #         list(token for token in self.documentPreprocessing[i][j] if token not in LIST_STOP_WORD))
+        self.documentPreprocessing[i] = self.controlFiltering.doFiltering(self.documentPreprocessing[i])
 
     def stemming(self, i):
-        for j in range(len(self.documentPreprocessing[i])):
-            self.documentPreprocessing[i][j] = self.controlStemming.stemming(kalimat=self.documentPreprocessing[i][j])
-        # n = self.documentPreprocessing[i].__len__()
-        # for j in range(0, n):
-        #     self.documentPreprocessing[i][j] = ControlStemming.stemming(self, kalimat=self.documentPreprocessing[i][j])
+        n = len(self.documentPreprocessing[i])
+        for j in range(0, n):
+            self.documentPreprocessing[i][j] = self.controlStemming.doStemming(token=self.documentPreprocessing[i][j])
 
     def getSentencesDocument(self):
         return self.preprocessing.getDokumen()
 
-    def getPreprocessing(self):
+    def getResultPreprocessing(self):
         return self.preprocessing.getPreprocessingResult()
-
-
-
-        # def segmentationSentences(self):
-        #     # print(self.dokumen.keys())
-        #     # j=1
-        #     pattern = re.compile("[.?!]")
-        #     for doc in self.dokumen:
-        #         isi = str(self.dokumen[doc][1])
-        #         segmen=re.split(pattern, isi)
-        #         segmen.pop()
-        #         self.newDocument[doc]=segmen
-
-        # def caseFolding(self):
-        #     for doc in self.newDocument:
-        #         isi = self.newDocument[doc]
-        #         self.newDocument[doc]= [kalimat.lower() for kalimat in isi]
-        #         print(self.newDocument[doc])
-
-        # def tokenizing(self):
-        #     for doc in self.newDocument:
-        #         list =[]
-        #         isiBerita = (self.newDocument[doc])
-        #         for kalimat in isiBerita:
-        #             list.append(kalimat.split())
-        #         self.newDocument[doc]=list
-
-        # def filtering(self):

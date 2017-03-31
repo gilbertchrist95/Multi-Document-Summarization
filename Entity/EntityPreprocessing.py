@@ -1,16 +1,16 @@
-class Preprocessing:
+class EntityPreprocessing:
     def __init__(self):
         self.preprocessing = []
-        self.dokumen = []
+        self.document = []
 
-    def setDokumen(self,dokumen):
-        self.dokumen = dokumen
+    def setDocument(self, document):
+        self.document = document
 
     def getDokumen(self):
-        return self.dokumen
+        return self.document
 
-    def setPreprocessingResult(self,dokumen):
-        self.preprocessing = dokumen
+    def setPreprocessingResult(self, preprocessing):
+        self.preprocessing = preprocessing
 
     def getPreprocessingResult(self):
         return self.preprocessing

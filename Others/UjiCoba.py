@@ -170,12 +170,6 @@ import re
 #     regexPattern = '|'.join(map(re.escape, DELIMETERS))
 #     texts = re.split(regexPattern, text.lower())
 #     return texts
-#
-#
-test = ['acb', ' b']
-a = ' '.join(test).split()
-# test.clear()
-print(a)
 
 # def split(delimiters, string, maxsplit=0):
 #     import re
@@ -253,26 +247,216 @@ print(a)
 # print([[j[i] for j in l] for i in range(len(l))])
 # # print(a.values())
 
-a = ['gilbet','christopher']
-print('gilbet' in a)
-
-print(a.index('gilbet'))
-
-
 from math import sqrt
-a = [4,3]
 
-
+a = [4, 3]
 def square(list):
     return sqrt(sum(map(lambda x: x ** 2, list)))
 
-b=square(a)
+
+b = square(a)
 print(b)
 
 a = [x[:] for x in [[0] * 2] * 10]
 print(a)
 
-a = [2,3]
-b = [4,6]
-c = sum(map(lambda x,y:x*y, a, b))
+a = [2, 3]
+b = [4, 6]
+c = sum(map(lambda x, y: x * y, a, b))
 print(c)
+
+#
+# class UjiCoba:
+#     def test(self):
+#         k = 1
+#         for i in range(100000):
+#             k = k + 2
+#
+#     def test2(self):
+#         c = 1
+#         for i in range(100000):
+#             c += 2
+#
+#
+import time
+start = time.time()
+end = time.time()
+print(end - start)
+
+# similarity = []
+# similarity.append([1, 0.03, 0.04, 0.94, 0.09, 0.55, 0.67, 0.32])
+# similarity.append([0, 1,    0.5,  0.67, 0.32, 0.34, 0.25, 0.13])
+# similarity.append([0, 0,    1,    0.34, 0.25,  0.50, 0.67, 0.32])
+# similarity.append([0, 0,    0,    1,    0.73,  0.45, 0,75, 0,23])
+# similarity.append([0, 0,    0,    0,    1,    0.83, 0.04, 0.94])
+# similarity.append([0, 0,    0,    0,    0,    1,    0.24, 0.4])
+# similarity.append([0, 0,    0,    0,    0,    0,    1,    0.42])
+# similarity.append([0, 0,    0,    0,    0,    0,    0,    1])
+#
+# listCluster = []
+# c = [0]
+# listCluster.append(c)
+#
+#
+# for i in range(1, len(similarity)):
+#     print(i)
+#     foundCluster = False
+#     for cluster in listCluster:
+#         HRold = countHistogramRatio(cluster, similarity)
+#         (cluster).append(i)
+#         HRnew = countHistogramRatio(cluster, similarity)
+#         print(HRold)
+#         print(HRnew)
+#         if  ((HRnew>=HRold)or((HRnew>0.6)and(HRold-HRnew)<0.4)):
+#             foundCluster = True
+#         else:
+#             cluster.pop()
+#     if foundCluster is False:
+#         c = [i]
+#         listCluster.append(c)
+#     print()
+#
+# print(listCluster)
+#
+
+
+# imp
+a = {}
+a['test']=10
+a['zzz']=12
+if 'tt' in a.keys():
+    a['test']+=1
+else:
+    a['tt']=1
+a = {}
+print(a)
+
+# if 12 in a.values():
+print()
+a = {'test':12,'uji':10,'ujii':100}
+for value in a.values():
+    if value>10:
+        print(value)
+a = [3,2,6,8,5,3]
+i = (a.index(max(a)))
+a.pop(i)
+print(a)
+# print(a)
+
+l = [[1,2,3,4,5,12,3,4,5,2],[1,2,3,4,5,12,3,4,5,2]]
+print(sum(l[0]))
+print(l[0][-1])
+
+import time
+
+#
+# from threading import Thread
+# import time
+#
+# # Define a function for the thread
+# def print_time( threadName, delay):
+#    count = 0
+#    while count < 5:
+#       time.sleep(delay)
+#       count += 1
+#       print ("%s: %s" % ( threadName, time.ctime(time.time()) ))
+#
+# # Create two threads as follows
+# try:
+#    Thread.start( print_time, ("Thread-1", 2, ) )
+#    Thread.start( print_time, ("Thread-2", 4, ) )
+# except:
+#    print("Error: unable to start thread")
+#
+# while 1:
+#    pass
+
+import itertools
+a = ['f', 'o', 'o', 'b', 'a', 'r']
+b = ['hello', 'world']
+def combine(list1, list2):
+    lst = []
+    len1 = len(list1)
+    len2 = len(list2)
+
+    for index in range( max(len1, len2) ):
+        if index+1 <= len1:
+            lst += [list1[index]]
+
+        if index+1 <= len2:
+            lst += [list2[index]]
+
+    return lst
+c = combine(a,b)
+print(c)
+
+l = [[1, 2, 3], [4, 5, 6], [7], [8, 9]]
+max = max(len(i) for i in l)
+print(max)
+
+import re
+test = "'indonesia Adalaha, Negara: Kepulauan indonesia kepulauan"
+# b = " ".join(re.split("[^a-zA-Z]*", test))
+DELIMETERS = "\"", "\'", "{", "}", "(", ")", "[", "]", ">", "<", "_", "=", "+", "|", "\\", ":", ";", " ", ",", ".", "/", "?", "~", "!", "@", "#", "$", "%", "^", "&", "*", "\r", "\n", "\t", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"
+regexPattern = '|'.join(map(re.escape, DELIMETERS))
+texts = list(set(filter(None,re.split(regexPattern, test.lower()))))
+print(texts)
+a = ['INDONESIA']
+print()
+
+
+import tkinter as tk
+from time import sleep
+
+# The truncation will make the progressbar more accurate
+# Note however that no progressbar is perfect
+from math import trunc
+
+# You will need the ttk module for this
+from tkinter import ttk
+
+# Just to demonstrate
+fileList = range(10)
+
+# How much to increase by with each iteration
+# This formula is in proportion to the length of the progressbar
+step = trunc(100/len(fileList))
+
+def MAIN():
+    """Put your loop in here"""
+    for fileName in fileList:
+        # The sleeping represents a time consuming process
+        # such as reading a file.
+        # sleep(1)
+
+        # Just to demonstrate
+        print(fileName)
+
+        # Update the progressbar
+        progress.step(step)
+        progress.update()
+
+    root.destroy()
+
+root = tk.Tk()
+
+progress = ttk.Progressbar(root, length=200)
+progress.pack()
+
+# Launch the loop once the window is loaded
+progress.after(1, MAIN)
+
+root.mainloop()
+
+X = [[12,7,3],
+    [4 ,5,6],
+    [7 ,8,9]]
+
+# 3x4 matrix
+Y = [[5,8,1,2],
+    [6,7,3,0],
+    [4,5,9,1]]
+
+# result is 3x4
+result = [[sum(a*b for a,b in zip(X_row,Y_col)) for Y_col in zip(*Y)] for X_row in X]
+print(result)

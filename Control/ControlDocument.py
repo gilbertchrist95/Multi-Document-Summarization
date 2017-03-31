@@ -1,32 +1,30 @@
 import os
-from Entity.EntityDocument import Dokumen
+from Entity.EntityDocument import EntityDokumen
 
 
 class ControlDokumen:
     def __init__(self):
-        self.dokumen = Dokumen()
+        self.dokumen = EntityDokumen()
 
     def saveDocument(self, folderPath):
-        # self.folderPath = folderPath
         dokumen = []
         self.listFile = os.listdir(folderPath)
         for list in self.listFile:
+            # print(list)
             if list[-3:] == 'txt':
-                # print(list)
                 addressFile = str(folderPath + "/" + list)
                 File = open(addressFile, 'r')
-                # print(sumber)
                 isiDokumen = File.read()
                 dokumen.append([isiDokumen])
-        self.dokumen.setDokumen(dokumen)
+        self.dokumen.setDocument(dokumen)
 
     def getDocument(self):
-        return self.dokumen.getDokumen()
+        return self.dokumen.getDocument()
 
     def resetDocument(self):
         self.dokumen.clear()
 
-    def saveSummarization(self, folderPath):
+    def saveSummaries(self, folderPath):
         summaries = {}
         listSummary = os.listdir(folderPath)
         for listS in listSummary:
@@ -38,5 +36,5 @@ class ControlDokumen:
             summaries[sumber] = isiRingkasan
         self.dokumen.setSummaries(summaries)
 
-    def getSummary(self):
+    def getSummaries(self):
         return self.dokumen.getSummaries()

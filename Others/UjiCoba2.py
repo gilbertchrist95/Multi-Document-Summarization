@@ -1,29 +1,34 @@
-from math import *
+from numpy import *
+
+from numpy import array
 
 
-class SingularValueDecomposition1:
+class SingularValueDecomposition:
+
     def __init__(self, matrix):
         self.A = matrix
-        self.m = len(self.A)
-        self.n = len(self.A[0])
+
+        self.m = self.A.shape[0]
+        self.n = self.A.shape[1]
 
         self.nu = min(self.m, self.n)
+        self.S = zeros(min(self.m + 1, self.n), dtype=float64)
+        self.U = zeros((self.m, self.nu), dtype=float64)
+        self.V = zeros((self.n, self.n), dtype=float64)
 
-        self.S = [0] * min(self.m + 1, self.n)
-        self.U = [x[:] for x in [[0] * self.nu] * self.m]
-        self.V = [x[:] for x in [[0] * self.n] * self.n]
-
-        self.e = [0] * self.n
-        self.work = [0] * self.m
-
+        self.e = zeros((self.n), dtype=float64)
+        self.work = zeros((self.m), dtype=float64)
         self.wantU = True
         self.wantV = True
 
         self.nct = min(self.m - 1, self.n)
         self.nrt = max(0, (min(self.n - 2, self.m)))
 
-    def count(self):
-        for k in range(max(self.nct, self.nrt)):
+        self.hitung()
+        self.printer()
+
+    def hitung(self):
+        for k in range(0, max(self.nct, self.nrt)):
             if k < self.nct:
                 self.S[k] = 0
                 for i in range(k, self.m):
@@ -33,18 +38,17 @@ class SingularValueDecomposition1:
                         self.S[k] = -(self.S[k])
                     for i in range(k, self.m):
                         self.A[i][k] /= self.S[k]
-                    self.A[k][k] += 1.0
+                    self.A[k][k] += 1
                 self.S[k] = -(self.S[k])
 
             for j in range(k + 1, self.n):
-                if (k < self.nct) and (self.S[k] != 0):
+                if k < self.nct and self.S[k] != 0:
                     t = 0
                     for i in range(k, self.m):
-                        t = t + self.A[i][k] * self.A[i][j]
+                        t += self.A[i][k] * self.A[i][j]
                     t = -t / self.A[k][k]
                     for i in range(k, self.m):
                         self.A[i][j] += t * self.A[i][k]
-
                 self.e[j] = self.A[k][j]
 
             if self.wantU and (k < self.nct):
@@ -85,32 +89,32 @@ class SingularValueDecomposition1:
             self.e[self.nrt] = self.A[self.nrt][p - 1]
         self.e[p - 1] = 0.0
 
-        # if self.wantU:
-        for j in range(self.nct, self.nu):
-            for i in range(0, self.m):
-                self.U[i][j] = 0.0
-            self.U[j][j] = 1.0
-        for k in range(self.nct - 1, -1, -1):
-            if self.S[k] != 0.0:
-                for j in range(k + 1, self.nu):
-                    t = 0
-                    for i in range(k, self.m):
-                        t += self.U[i][k] * self.U[i][j]
-                    t = -t / self.U[k][k]
-                    for i in range(k, self.m):
-                        self.U[i][j] += t * self.U[i][k]
-                for i in range(k, self.m):
-                    self.U[i][k] = -(self.U[i][k])
-                self.U[k][k] = 1.0 + self.U[k][k]
-                for i in range(0, k - 1):
-                    self.U[i][k] = 0.0
-            else:
+        if self.wantU:
+            for j in range(self.nct, self.nu):
                 for i in range(0, self.m):
-                    self.U[i][k] = 0.0
-                self.U[k][k] = 1.0
+                    self.U[i][j] = 0.0
+                self.U[j][j] = 1.0
+            for k in range(self.nct - 1, -1, -1):
+                if self.S[k] != 0.0:
+                    for j in range(k + 1, self.nu):
+                        t = 0
+                        for i in range(k, self.m):
+                            t += self.U[i][k] * self.U[i][j]
+                        t = -t / self.U[k][k]
+                        for i in range(k, self.m):
+                            self.U[i][j] += t * self.U[i][k]
+                    for i in range(k, self.m):
+                        self.U[i][k] = -(self.U[i][k])
+                    self.U[k][k] = 1.0 + self.U[k][k]
+                    for i in range(0, k - 1):
+                        self.U[i][k] = 0.0
+                else:
+                    for i in range(0, self.m):
+                        self.U[i][k] = 0.0
+                    self.U[k][k] = 1.0
 
-        # if self.wantV:
-        for k in range(self.n - 1, -1, -1):
+        if self.wantV:
+            for k in range(self.n - 1, -1, -1):
                 if (k < self.nrt) and (self.e[k] != 0.0):
                     for j in range(k + 1, self.nu):
                         t = 0
@@ -123,13 +127,14 @@ class SingularValueDecomposition1:
                     self.V[i][k] = 0.0
                 self.V[k][k] = 1.0
 
-        # Main         iteration         loop        for the singular values.
+        # // Main         iteration         loop        for the singular values.
         pp = p - 1
         iter = 0
         eps = pow(2.0, -52.0)
         tiny = pow(2.0, -966.0)
 
         while p > 0:
+
             for k in range(p - 2, -2, -1):
                 if k == -1:
                     break
@@ -232,7 +237,7 @@ class SingularValueDecomposition1:
                     self.S[j + 1] = -sn * self.e[j] + cs * self.S[j + 1]
                     g = sn * self.e[j + 1]
                     self.e[j + 1] = cs * self.e[j + 1]
-                    if self.wantU and (j < self.m - 1):
+                    if self.wantU and j < self.m - 1:
                         for i in range(0, self.m):
                             t = cs * self.U[i][j] + sn * self.U[i][j + 1]
                             self.U[i][j + 1] = -sn * self.U[i][j] + cs * self.U[i][j + 1]
@@ -278,37 +283,37 @@ class SingularValueDecomposition1:
     def getV(self):
         return self.V
 
-# x = [[0 for i in range(5)] for j in range(8)]
-# x[0] = [1, 0, 1, 0, 0]
-# x[1] = [1, 1, 0, 0, 0]
-# x[2] = [0, 1, 0, 0, 0]
-# x[3] = [0, 1, 1, 0, 0]
-# x[4] = [0, 0, 0, 1, 0]
-# x[5] = [0, 0, 1, 1, 0]
-# x[6] = [0, 0, 0, 1, 0]
-# x[7] = [0, 0, 0, 1, 1]
-#
-# d = [row[2] for row in x]
-# print(d)
-# x=[[1,0],[0,1],[1,1],[2,3]]
-#
-# # print(x)
+    def check(self):
+        aa = zeros((2,2), dtype=float64)
+        aa[0,0]=self.S[0]
+        aa[1,1]=self.S[1]
+        US = matmul(self.U,aa)
+        USV = matmul(US,self.V)
+        print(USV)
+
+
+    def printer(self):
+        print(self.A.itemsize)
+        print(self.U)
+        print(self.S)
+        print(self.V)
+
+        self.check()
+        # print(self.U)
+        # print(self.S)
+        # print(self.S.shape)
+        # print(self.V)
+        # print(self.e)
+
+import sys
+x = ndarray((8, 2), dtype=float32)
+x[0] = (1, 0)
+x[1] = (1, 1)
+x[2] = (1, 1)
+x[3] = (0, 1)
+x[4] = (1, 0)
+x[5] = (1, 1)
+x[6] = (1, 1)
+x[7] = (0, 1)
 # svd = SingularValueDecomposition(x)
-# svd.count()
-# U = (svd.getU())
-# S = (svd.getS())
-# Vt = [[j[i] for j in svd.getV()] for i in range(len(svd.getV()))]
-# US = [[0 for i in range(len(S))] for j in range(len(U))]
-# SVt = [[0 for i in range(len(Vt))] for j in range(len(S))]
-# USVt = [[0 for i in range(len(Vt))] for j in range(len(US))]
-# for i in range(len(U)):
-#     for j in range(len(S)):
-#         US[i][j] = U[i][j] * S[j]
-# for i in range(len(US)):
-#     for j in range(len(Vt[0])):
-#         for k in range(len(Vt)):
-#             USVt[i][j]+=US[i][k]*Vt[k][j]
-#
-# for i in  USVt:
-#     print (i)
-# #
+print(sys.getsizeof(x))

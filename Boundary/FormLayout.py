@@ -123,6 +123,7 @@ class FormMainMenu(Frame):
 
 class FormSummarization(Frame):
     def __init__(self, parent, controller):
+
         self.controlPreprocessing = ControlPreprocessing()
         self.controlSummarization = ControlSummarization()
         self.resultSummary = []
@@ -151,11 +152,35 @@ class FormSummarization(Frame):
         frameText = Frame(mainFrame, padx=25)
         frameText.pack(fill=BOTH, expand=YES)
 
+        # frameSetting  = Frame(frameText)
+        # frameSetting.pack(side=TOP,fill=X)
+        #
+        # self.labelST = Label(frameSetting, text="Similarity Threshold:", anchor=W, font=("Times New Roman", 12))
+        # self.labelST.pack(side=LEFT)
+        # self.entryST = Entry(frameSetting, width=4,justify=CENTER, font=("Times New Roman", 12))
+        # self.entryST.insert(0,'0.7')
+        # self.entryST.pack(side=LEFT, padx=5 )
+        #
+        # self.labelHRmin = Label(frameSetting, text="   HRmin:", anchor=W, font=("Times New Roman", 12))
+        # self.labelHRmin.pack(side=LEFT)
+        # self.entryHRmin = Entry(frameSetting, width=4, justify=CENTER, font=("Times New Roman", 12))
+        # self.entryHRmin.insert(0, '0.6')
+        # self.entryHRmin.pack(side=LEFT, padx=5)
+        #
+        # self.labelEpsilon = Label(frameSetting, text="   epsilon:", anchor=W, font=("Times New Roman",12))
+        # self.labelEpsilon.pack(side=LEFT)
+        # self.entryEpsilon = Entry(frameSetting, width=4, justify=CENTER, font=("Times New Roman", 12))
+        # self.entryEpsilon.insert(0, '0.4')
+        # self.entryEpsilon.pack(side=LEFT, padx=5)
+        #
+        # self.labelSID = Label(frameSetting, text="   threshold SID:", anchor=W, font=("Times New Roman", 12))
+        # self.labelSID.pack(side=LEFT)
+        # self.entrySID = Entry(frameSetting, width=4, justify=CENTER, font=("Times New Roman", 12))
+        # self.entrySID.insert(0, '0.7')
+        # self.entrySID.pack(side=LEFT, padx=5)
+
         self.label = Label(frameText, text="Hasil Ringkasan:", anchor=W, font=("Times New Roman", 15))
         self.label.pack(side=TOP, fill=X)
-
-        # frameText = Frame(mainFrame, padx=25)
-        # frameText.pack(fill=BOTH, expand=YES)
 
         self.textFile = Text(frameText, wrap=WORD, height=11, width=90, font=("Times New Roman", 12), spacing1=1)
         self.textFile.pack(fill=X, side=LEFT)
@@ -191,6 +216,12 @@ class FormSummarization(Frame):
         start = time.time()
         sentencesDocument = self.controlPreprocessing.getSentencesDocument()
         preprocessingResult = self.controlPreprocessing.getResultPreprocessing()
+
+        # valueEntryST = self.entryST.get()
+        # valueEntryHRmin = self.entryHRmin.get()
+        # valueEntryEpsilon = self.entryEpsilon.get()
+        # valueEntrySID = self.entrySID.get()
+
         self.controlSummarization.doSummarization(preprocessingResult, sentencesDocument)
         self.resultSummary = self.controlSummarization.getResultSummary()
         end = time.time()
@@ -233,9 +264,23 @@ class FormAccuration(Frame):
         self.entryBrowse.pack(padx=5, side=LEFT)
         self.buttonBrowse = Button(frameBody, text='Browse', command=self.browseAccuration)
         self.buttonBrowse.pack(side=LEFT, padx=10)
+        #
+        # frameA = Frame(mainFrame, bd=5)
+        # frameA.pack(fill=X, side=TOP)
+        #
+        # self.stateStopwordRemoval = IntVar(value=1)
+        # self.checkButton = Checkbutton(frameA, text="Stopword Removal", variable=self.stateStopwordRemoval)
+        # self.checkButton.pack(side=LEFT,padx=10)
+        #
+        # self.stateStemming = IntVar(value=1)
+        # self.checkButton = Checkbutton(frameA, text="Stemming", variable=self.stateStemming)
+        # self.checkButton.pack(side=LEFT,padx=10)
 
-        self.tree = ttk.Treeview(mainFrame, height=8)
-        self.tree['column'] = ("sumber","Rouge-1.Recall","Rouge-1.Precision","Rouge-1.F-measure")
+        frameB = Frame(mainFrame, bd=5)
+        frameB.pack(fill=X, side=BOTTOM)
+
+        self.tree = ttk.Treeview(frameB, height=8)
+        self.tree['column'] = ("sumber", "Rouge-1.Recall", "Rouge-1.Precision", "Rouge-1.F-measure")
         self.tree.column("#0", width=30, anchor=CENTER)
         self.tree.column("sumber", width=90, anchor=W)
         self.tree.column("Rouge-1.Recall", width=115, anchor=CENTER)
@@ -249,7 +294,7 @@ class FormAccuration(Frame):
         self.tree.heading('Rouge-1.F-measure', text="Rouge-1.F-measure")
         self.tree.pack(side=LEFT, padx=10, pady=3)
 
-        self.tree2 = ttk.Treeview(mainFrame, height=4)
+        self.tree2 = ttk.Treeview(frameB, height=4)
         self.tree2['column'] = ("rogue", "akurasi")
         self.tree2.column("#0", width=40)
         self.tree2.column("rogue", width=140, anchor=W)
@@ -259,10 +304,7 @@ class FormAccuration(Frame):
         self.tree2.heading('akurasi', text="Nilai")
         self.tree2.pack(side=TOP, padx=10, pady=3)
 
-        frameBottom = Frame(mainFrame, bd=5)
-        frameBottom.pack(fill=X, side=BOTTOM)
-
-        self.buttonCountAccuration = Button(frame, text='Hitung Akurasi', command=self.countAccuration)
+        self.buttonCountAccuration = Button(frame, text='Hitung Akurasi', command=self.countAccuration, state=DISABLED)
         self.buttonCountAccuration.pack(side=TOP, pady=10)
 
         self.buttonKembali = Button(frame, text="Kembali", command=lambda: controller.showFrame("FormSummarization"))
@@ -283,134 +325,149 @@ class FormAccuration(Frame):
                 self.tree.insert('', 'end', text=str(i), values=(dokumen[0]))
                 i += 1
         self.controlDokumen.saveSummaries(folderPath)
+        self.buttonCountAccuration['state'] = 'normal'
 
     def countAccuration(self):
         listSumber = ['CNN', 'Detik', 'Kompas', 'Liputan6', 'Merdeka', 'Okezone', 'Tempo']
         summaries = self.controlDokumen.getSummaries()
         formSummarization = self.controller.getFrame("FormSummarization")
         listSentence = formSummarization.resultSummary
+
+        print(summaries)
+        print(listSentence)
+
         self.controlAccuration.doAccuration(summaries, listSentence)
         accuration = self.controlAccuration.getResultAccuration()
+
+        print(accuration)
 
         self.tree.delete(*self.tree.get_children())
         z = 1
         for list in sorted(listSumber):
-            self.tree.insert('', END, text=str(z), values=(list,round(accuration[list][0],3),
-                                                           round(accuration[list][1],3),round(accuration[list][2], 3)))
+            self.tree.insert('', END, text=str(z), values=(list, round(accuration[list][0], 3),
+                                                           round(accuration[list][1], 3),
+                                                           round(accuration[list][2], 3)))
             z += 1
         Rouge1multi = {}
-        Rouge1multi['recall'] = sum(acc for acc in [accuration[i][0] for i in accuration])/len(accuration)
-        Rouge1multi['precision'] = sum(acc for acc in [accuration[i][1] for i in accuration])/len(accuration)
-        Rouge1multi['fmeasure'] = sum(acc for acc in [accuration[i][2] for i in accuration])/len(accuration)
+        Rouge1multi['recall'] = sum(acc for acc in [accuration[i][0] for i in accuration]) / len(accuration)
+        Rouge1multi['precision'] = sum(acc for acc in [accuration[i][1] for i in accuration]) / len(accuration)
+        Rouge1multi['fmeasure'] = sum(acc for acc in [accuration[i][2] for i in accuration]) / len(accuration)
 
-        self.tree2.insert('', END, text=str('1'), values=('Rouge-1multi Recall',round(Rouge1multi['recall'], 3)))
-        self.tree2.insert('', END, text=str(2), values=('Rouge-1multi Precision',round(Rouge1multi['precision'], 3)))
-        self.tree2.insert('', END, text=str('3'), values=('Rouge-1multi F-measure',round(Rouge1multi['fmeasure'], 3)))
+        # self.tree2.delete(*self.tree.get_children())
 
+        checkItem = self.tree2.get_children()
+        if checkItem != '()':
+            for row in checkItem:
+                self.tree2.delete(row)
 
-    # if __name__ == "__main__":
-    #     start = time.time()
-    #     # not recommended
-    #     # folderPath = 'D:/Dropbox/TA/Berita/Antasari'  # lebih bagus 0.65
-    #     # folderPath = 'D:/Dropbox/TA/Berita/Timnas Tahan Imbang Vietnam (ok)'
-    #     # folderPath = 'D:/Dropbox/TA/Berita/Donald Trump Tolak Gaji'
-    #     # folderPath = 'D:/Dropbox/TA/Berita/8. Gol Offside Man. City' #not recommended
-    #     # folderPath = 'D:/Dropbox/TA/Berita/Nokia Android' zzz
-    #     # folderPath = 'D:/Dropbox/TA/Berita/3. 76 WN China dirazia'
-    #     # folderPath = 'D:/Dropbox/TA/Berita/6. New Yaris Heykers (no)'
-    #
-    #     # folderPath = 'D:/Dropbox/TA/Berita/Irman Gusman Divonis 4,5 Tahun Penjara'
-    #     # folderPath = 'D:/Dropbox/TA/Berita/Pesawat PM Israel Hindari Wilayah RI'
-    #     # folderPath = 'D:/Dropbox/TA/Berita/Gempa 5,2 SR Guncang Bali'
-    #     # folderPath = 'D:/Dropbox/TA/Berita/Whatsapp Hentikan Dukungan Untuk Blackberry & Nokia'
-    #     # folderPath = 'D:/Dropbox/TA/Berita/Hugo Barra Tinggalkan Xiaomi'
-    #     # folderPath = 'D:/Dropbox/TA/Berita/Xiaomi Memperkenalkan Mi Notebook Air'
-    #     # folderPath = 'D:/Dropbox/TA/Berita/Harga Pertamax, Pertalite, dan Dexlite Naik'
-    #     # folderPath = 'D:/Dropbox/TA/Berita/Leicester City Pecat Manajer Ranieri'
-    #     # folderPath = 'D:/Dropbox/TA/Berita/Ahmad Dhani Dilaporkan ke Polisi'
-    #     # folderPath = 'D:/Dropbox/TA/Berita/Abduh Curhat Ke Jokowi'
-    #
-    #     # folderPath2 = 'D:/Dropbox/TA/Ringkasan/Ringkasan Irman Gusman'
-    #     # folderPath2 = 'D:/Dropbox/TA/Ringkasan/Ringkasan Pesawat PM Israel Hindari Wilayah RI'
-    #     # folderPath2 = 'D:/Dropbox/TA/Ringkasan/Ringkasan Gempa 5,2 SR'
-    #     # folderPath2 = 'D:/Dropbox/TA/Ringkasan/Ringkasan Whatsapp'
-    #     # folderPath2 = 'D:/Dropbox/TA/Ringkasan/Ringkasan Hugo'
-    #     # folderPath2 = 'D:/Dropbox/TA/Ringkasan/Ringkasan Mi Notebook Air'
-    #     # folderPath2 = 'D:/Dropbox/TA/Ringkasan/Ringkasan Pertalite'
-    #     # folderPath2 = 'D:/Dropbox/TA/Ringkasan/Ringkasan Manajer Liecester'
-    #     # folderPath2 = 'D:/Dropbox/TA/Ringkasan/Ringkasan Ahmad Dhani'
-    #     # folderPath2 = 'D:/Dropbox/TA/Ringkasan/Ringkasan Abduh'
-    #
-    #     folderPath =  []
-    #     folderPath2 = []
-    #     folderPath.append('D:/Dropbox/TA/Berita/Irman Gusman Divonis 4,5 Tahun Penjara')
-    #     folderPath.append('D:/Dropbox/TA/Berita/Pesawat PM Israel Hindari Wilayah RI')
-    #     folderPath.append('D:/Dropbox/TA/Berita/Gempa 5,2 SR Guncang Bali')
-    #     folderPath.append('D:/Dropbox/TA/Berita/Whatsapp Hentikan Dukungan Untuk Blackberry & Nokia')
-    #     folderPath.append('D:/Dropbox/TA/Berita/Hugo Barra Tinggalkan Xiaomi')
-    #     folderPath.append('D:/Dropbox/TA/Berita/Xiaomi Memperkenalkan Mi Notebook Air')
-    #     folderPath.append('D:/Dropbox/TA/Berita/Harga Pertamax, Pertalite, dan Dexlite Naik')
-    #     folderPath.append('D:/Dropbox/TA/Berita/Leicester City Pecat Manajer Ranieri')
-    #     folderPath.append('D:/Dropbox/TA/Berita/Ahmad Dhani Dilaporkan ke Polisi')
-    #     folderPath.append('D:/Dropbox/TA/Berita/Abduh Curhat Ke Jokowi')
-    #
-    #     folderPath2.append('D:/Dropbox/TA/Ringkasan/Ringkasan Irman Gusman')
-    #     folderPath2.append('D:/Dropbox/TA/Ringkasan/Ringkasan Pesawat PM Israel Hindari Wilayah RI')
-    #     folderPath2.append('D:/Dropbox/TA/Ringkasan/Ringkasan Gempa 5,2 SR')
-    #     folderPath2.append('D:/Dropbox/TA/Ringkasan/Ringkasan Whatsapp')
-    #     folderPath2.append('D:/Dropbox/TA/Ringkasan/Ringkasan Hugo')
-    #     folderPath2.append('D:/Dropbox/TA/Ringkasan/Ringkasan Mi Notebook Air')
-    #     folderPath2.append('D:/Dropbox/TA/Ringkasan/Ringkasan Pertalite')
-    #     folderPath2.append('D:/Dropbox/TA/Ringkasan/Ringkasan Manajer Liecester')
-    #     folderPath2.append('D:/Dropbox/TA/Ringkasan/Ringkasan Ahmad Dhani')
-    #     folderPath2.append('D:/Dropbox/TA/Ringkasan/Ringkasan Abduh')
-    #
-    #     for i in range(len(folderPath)):
-    #         # print(folderPath[i])
-    #         # print(folderPath2[i])
-    #         controlDokumen = ControlDokumen()
-    #         controlPreprocessing = ControlPreprocessing()
-    #         controlSummarization = ControlSummarization()
-    #         controlAccuration = ControlAccuration()
-    #
-    #         controlDokumen.saveDocument(folderPath[i])
-    #         dokumen = controlDokumen.getDocument()
-    #
-    #         controlPreprocessing.doPreprocessing(dokumen)
-    #         sentencesDocument = controlPreprocessing.getSentencesDocument()
-    #         preprocessingResult = controlPreprocessing.getResultPreprocessing()
-    #
-    #         controlSummarization.doSummarization(preprocessingResult, sentencesDocument)
-    #         listSentence = controlSummarization.getResultSummary()
-    #
-    #         # for sentence in listSentence:
-    #         #     print(sentence)
-    #         # print()
-    #
-    #         controlDokumen.saveSummaries(folderPath2[i])
-    #         summaries = controlDokumen.getSummaries()
-    #         controlAccuration.doAccuration(summaries, listSentence)
-    #         accuration = controlAccuration.getResultAccuration()
-    #
-    #         for key in sorted(accuration):
-    #             # print("%s %s" %(key,accuration[key]))
-    #             print("%s, %s" %(key,accuration[key]))
-    #         print()
-    #
-    #         # listRouge={}
-    #         # listRouge['ROUGE-1.Min'] = min(acc for acc in accuration.values())
-    #         # listRouge['ROUGE-1.Avg'] = sum(acc for acc in accuration.values()) / len(accuration)
-    #         # listRouge['ROUGE-1.Max'] = max(acc for acc in accuration.values())
-    #
-    #         # for list in listRouge.items():
-    #         #     print(list)
-    #
-    #         # print("MIN: %s" % (listRouge['ROUGE-1.Min']))
-    #         # print("MIN: %s" % (listRouge['ROUGE-1.Min']))
-    #         # print("MAX: %s" % (listRouge['ROUGE-1.Max']))
-    #
-    # end = time.time()
-    # print("Execution time:" + str(end - start))
+        self.tree2.insert('', END, text=str('1'), values=('Rouge-1multi Recall', round(Rouge1multi['recall'], 3)))
+        self.tree2.insert('', END, text=str(2), values=('Rouge-1multi Precision', round(Rouge1multi['precision'], 3)))
+        self.tree2.insert('', END, text=str('3'), values=('Rouge-1multi F-measure', round(Rouge1multi['fmeasure'], 3)))
+
+        #
+        # if __name__ == "__main__":
+        #     start = time.time()
+        #     # not recommended
+        #     # folderPath = 'D:/Dropbox/TA/Berita/Antasari'  # lebih bagus 0.65
+        #     # folderPath = 'D:/Dropbox/TA/Berita/Timnas Tahan Imbang Vietnam (ok)'
+        #     # folderPath = 'D:/Dropbox/TA/Berita/Donald Trump Tolak Gaji'
+        #     # folderPath = 'D:/Dropbox/TA/Berita/8. Gol Offside Man. City' #not recommended
+        #     # folderPath = 'D:/Dropbox/TA/Berita/Nokia Android' zzz
+        #     # folderPath = 'D:/Dropbox/TA/Berita/3. 76 WN China dirazia'
+        #     # folderPath = 'D:/Dropbox/TA/Berita/6. New Yaris Heykers (no)'
+        #
+        #     # folderPath = 'D:/Dropbox/TA/Berita/Irman Gusman Divonis 4,5 Tahun Penjara'
+        #     # folderPath = 'D:/Dropbox/TA/Berita/Pesawat PM Israel Hindari Wilayah RI'
+        #     # folderPath = 'D:/Dropbox/TA/Berita/Gempa 5,2 SR Guncang Bali'
+        #     # folderPath = 'D:/Dropbox/TA/Berita/Whatsapp Hentikan Dukungan Untuk Blackberry & Nokia'
+        #     # folderPath = 'D:/Dropbox/TA/Berita/Hugo Barra Tinggalkan Xiaomi'
+        #     # folderPath = 'D:/Dropbox/TA/Berita/Xiaomi Memperkenalkan Mi Notebook Air'
+        #     # folderPath = 'D:/Dropbox/TA/Berita/Harga Pertamax, Pertalite, dan Dexlite Naik'
+        #     # folderPath = 'D:/Dropbox/TA/Berita/Leicester City Pecat Manajer Ranieri'
+        #     # folderPath = 'D:/Dropbox/TA/Berita/Ahmad Dhani Dilaporkan ke Polisi'
+        #     # folderPath = 'D:/Dropbox/TA/Berita/Abduh Curhat Ke Jokowi'
+        #
+        #     # folderPath2 = 'D:/Dropbox/TA/Ringkasan/Ringkasan Irman Gusman'
+        #     # folderPath2 = 'D:/Dropbox/TA/Ringkasan/Ringkasan Pesawat PM Israel Hindari Wilayah RI'
+        #     # folderPath2 = 'D:/Dropbox/TA/Ringkasan/Ringkasan Gempa 5,2 SR'
+        #     # folderPath2 = 'D:/Dropbox/TA/Ringkasan/Ringkasan Whatsapp'
+        #     # folderPath2 = 'D:/Dropbox/TA/Ringkasan/Ringkasan Hugo'
+        #     # folderPath2 = 'D:/Dropbox/TA/Ringkasan/Ringkasan Mi Notebook Air'
+        #     # folderPath2 = 'D:/Dropbox/TA/Ringkasan/Ringkasan Pertalite'
+        #     # folderPath2 = 'D:/Dropbox/TA/Ringkasan/Ringkasan Manajer Liecester'
+        #     # folderPath2 = 'D:/Dropbox/TA/Ringkasan/Ringkasan Ahmad Dhani'
+        #     # folderPath2 = 'D:/Dropbox/TA/Ringkasan/Ringkasan Abduh'
+        #
+        #     folderPath =  []
+        #     folderPath2 = []
+        #     folderPath.append('D:/Dropbox/TA/Berita/Irman Gusman Divonis 4,5 Tahun Penjara')
+        #     # folderPath.append('D:/Dropbox/TA/Berita/Pesawat PM Israel Hindari Wilayah RI')
+        #     # folderPath.append('D:/Dropbox/TA/Berita/Gempa 5,2 SR Guncang Bali')
+        #     # folderPath.append('D:/Dropbox/TA/Berita/Whatsapp Hentikan Dukungan Untuk Blackberry & Nokia')
+        #     # folderPath.append('D:/Dropbox/TA/Berita/Hugo Barra Tinggalkan Xiaomi')
+        #     # folderPath.append('D:/Dropbox/TA/Berita/Xiaomi Memperkenalkan Mi Notebook Air')
+        #     # folderPath.append('D:/Dropbox/TA/Berita/Harga Pertamax, Pertalite, dan Dexlite Naik')
+        #     # folderPath.append('D:/Dropbox/TA/Berita/Leicester City Pecat Manajer Ranieri')
+        #     # folderPath.append('D:/Dropbox/TA/Berita/Ahmad Dhani Dilaporkan ke Polisi')
+        #     # folderPath.append('D:/Dropbox/TA/Berita/Abduh Curhat Ke Jokowi')
+        #
+        #     folderPath2.append('D:/Dropbox/TA/Ringkasan/Ringkasan Irman Gusman')
+        #     # folderPath2.append('D:/Dropbox/TA/Ringkasan/Ringkasan Pesawat PM Israel Hindari Wilayah RI')
+        #     # folderPath2.append('D:/Dropbox/TA/Ringkasan/Ringkasan Gempa 5,2 SR')
+        #     # folderPath2.append('D:/Dropbox/TA/Ringkasan/Ringkasan Whatsapp')
+        #     # folderPath2.append('D:/Dropbox/TA/Ringkasan/Ringkasan Hugo')
+        #     # folderPath2.append('D:/Dropbox/TA/Ringkasan/Ringkasan Mi Notebook Air')
+        #     # folderPath2.append('D:/Dropbox/TA/Ringkasan/Ringkasan Pertalite')
+        #     # folderPath2.append('D:/Dropbox/TA/Ringkasan/Ringkasan Manajer Liecester')
+        #     # folderPath2.append('D:/Dropbox/TA/Ringkasan/Ringkasan Ahmad Dhani')
+        #     # folderPath2.append('D:/Dropbox/TA/Ringkasan/Ringkasan Abduh')
+        #
+        #     for i in range(len(folderPath)):
+        #         print(folderPath[i])
+        #         # print(folderPath2[i])
+        #         controlDokumen = ControlDokumen()
+        #         controlPreprocessing = ControlPreprocessing()
+        #         controlSummarization = ControlSummarization()
+        #         controlAccuration = ControlAccuration()
+        #
+        #         controlDokumen.saveDocument(folderPath[i])
+        #         dokumen = controlDokumen.getDocument()
+        #
+        #         controlPreprocessing.doPreprocessing(dokumen)
+        #         sentencesDocument = controlPreprocessing.getSentencesDocument()
+        #         preprocessingResult = controlPreprocessing.getResultPreprocessing()
+        #
+        #         controlSummarization.doSummarization(preprocessingResult, sentencesDocument)
+        #         listSentence = controlSummarization.getResultSummary()
+        #
+        #         # for sentence in listSentence:
+        #         #     print(sentence)
+        #         # print()
+        #
+        #         controlDokumen.saveSummaries(folderPath2[i])
+        #         summaries = controlDokumen.getSummaries()
+        #         controlAccuration.doAccuration(summaries, listSentence)
+        #         accuration = controlAccuration.getResultAccuration()
+        #
+        #         for key in sorted(accuration):
+        #             # print("%s %s" %(key,accuration[key]))
+        #             print("%s, %s" %(key,accuration[key]))
+        #         print()
+        #
+        #         # listRouge={}
+        #         # listRouge['ROUGE-1.Min'] = min(acc for acc in accuration.values())
+        #         # listRouge['ROUGE-1.Avg'] = sum(acc for acc in accuration.values()) / len(accuration)
+        #         # listRouge['ROUGE-1.Max'] = max(acc for acc in accuration.values())
+        #
+        #         # for list in listRouge.items():
+        #         #     print(list)
+        #
+        #         # print("MIN: %s" % (listRouge['ROUGE-1.Min']))
+        #         # print("MIN: %s" % (listRouge['ROUGE-1.Min']))
+        #         # print("MAX: %s" % (listRouge['ROUGE-1.Max']))
+        #
+        # end = time.time()
+        # print("Execution time:" + str(end - start))
 
 
 if __name__ == "__main__":

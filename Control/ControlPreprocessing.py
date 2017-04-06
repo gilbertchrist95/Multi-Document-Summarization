@@ -65,11 +65,14 @@ class ControlPreprocessing():
         self.documentPreprocessing[i] = [' '.join(list).split() for list in self.documentPreprocessing[i]]
 
     def filtering(self, i):
-        self.documentPreprocessing[i] = self.controlFiltering.doFiltering(self.documentPreprocessing[i])
+        n = len(self.documentPreprocessing[i])
+        for j in range(0, n):
+            self.documentPreprocessing[i][j] = self.controlFiltering.doFiltering1(self.documentPreprocessing[i][j])
 
     def stemming(self, i):
         n = len(self.documentPreprocessing[i])
         for j in range(0, n):
+            # print(self.documentPreprocessing[i][j])
             self.documentPreprocessing[i][j] = self.controlStemming.doStemming(token=self.documentPreprocessing[i][j])
 
     def getSentencesDocument(self):

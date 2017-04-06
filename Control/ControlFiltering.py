@@ -12,3 +12,8 @@ class ControlFiltering:
             documentPreprocessing[j] = list(
                 token for token in documentPreprocessing[j] if token not in self.LIST_STOP_WORD)
         return documentPreprocessing
+
+    def doFiltering1(self, documentPreprocessing):
+        documentPreprocessing = list(
+            token for token in documentPreprocessing if token not in self.LIST_STOP_WORD)
+        return documentPreprocessing

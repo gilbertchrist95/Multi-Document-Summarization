@@ -1,4 +1,3 @@
-
 from math import sqrt
 from math import log10
 from Control.SingularValueDecomposition1 import SingularValueDecomposition1
@@ -6,13 +5,12 @@ from Control.SingularValueDecomposition import SingularValueDecomposition
 from Entity.EntitySummarization import EntitySummarization
 
 
-
-
 class ControlSummarization:
     entitySummaries = EntitySummarization()
     svd = SingularValueDecomposition()
 
     def doSummarization(self, preprocessingResult, sentencesDocument):
+
         # similarity, listCluster = self.sentencesClustering(preprocessingResult)
         similarity = self.latentSemancticIndexing(preprocessingResult)
         listCluster = self.similarityHistogramClustering(similarity)
@@ -52,8 +50,6 @@ class ControlSummarization:
 
         similarity = self.countSimilarity(term, preprocessingResult, U, S, Vt)
         return similarity
-
-
 
     def countSimilarity(self, term, preprocessingResult, U, S, Vt):
         US = [x[:] for x in [[0] * len(S)] * len(U)]
@@ -131,10 +127,8 @@ class ControlSummarization:
         # print()
         return listCluster
 
-
-
     def representativeSelection(self, similarity, sentencesDocument, listCluster):
-        threshold = 0.7
+        threshold =0.7
         listSentence = []
         maxW = []
         for i in range(len(listCluster)):
@@ -166,49 +160,49 @@ class ControlSummarization:
         return listSentence
 
 
-    # def setMatrix(self, preprocessingResult):
-    #     matrix = []  # term x sentence
-    #     term = []  # term x 1
-    #     iColumn = 0
-    #     nColumn = len(preprocessingResult)
-    #     for sentence in preprocessingResult:
-    #         for token in sentence:
-    #             if token in term:
-    #                 matrix[term.index(token)][iColumn] += 1
-    #             else:
-    #                 term.append(token)
-    #                 matrix.append([0] * nColumn)
-    #                 matrix[len(term) - 1][iColumn] = 1
-    #         iColumn += 1
-    #     return term, matrix
-    #
-    # def singularValueDecomposition(self, matrix):
-    #     svd = SingularValueDecomposition(matrix)
-    #     svd.count()
-    #     U = svd.getU()
-    #     S = svd.getS()
-    #     Vt = svd.getVt()
-    #     return U,S,Vt
+        # def setMatrix(self, preprocessingResult):
+        #     matrix = []  # term x sentence
+        #     term = []  # term x 1
+        #     iColumn = 0
+        #     nColumn = len(preprocessingResult)
+        #     for sentence in preprocessingResult:
+        #         for token in sentence:
+        #             if token in term:
+        #                 matrix[term.index(token)][iColumn] += 1
+        #             else:
+        #                 term.append(token)
+        #                 matrix.append([0] * nColumn)
+        #                 matrix[len(term) - 1][iColumn] = 1
+        #         iColumn += 1
+        #     return term, matrix
+        #
+        # def singularValueDecomposition(self, matrix):
+        #     svd = SingularValueDecomposition(matrix)
+        #     svd.count()
+        #     U = svd.getU()
+        #     S = svd.getS()
+        #     Vt = svd.getVt()
+        #     return U,S,Vt
         # svd = SingularValueDecomposition1(matrix)
         # svd.count()
         # U = svd.getU()
         # S = svd.getS()
         # Vt = [[j[i] for j in svd.getV()] for i in range(len(svd.getV()))]
         # return  U, S, Vt
-    # def clusterOrdering(self, listCluster, document):
-    #     threshold = 10
-    #     weight = []
-    #     for cluster in listCluster:
-    #         w = 0
-    #         t = {}
-    #         for i in cluster:
-    #             for term in document[i]:
-    #                 if term in t.keys():
-    #                     t[term] += 1
-    #                 else:
-    #                     t[term] = 1
-    #         for value in t.values():
-    #             if value > threshold:
-    #                 w += log10(value)
-    #         weight.append(w)
-    #     return weight
+        # def clusterOrdering(self, listCluster, document):
+        #     threshold = 10
+        #     weight = []
+        #     for cluster in listCluster:
+        #         w = 0
+        #         t = {}
+        #         for i in cluster:
+        #             for term in document[i]:
+        #                 if term in t.keys():
+        #                     t[term] += 1
+        #                 else:
+        #                     t[term] = 1
+        #         for value in t.values():
+        #             if value > threshold:
+        #                 w += log10(value)
+        #         weight.append(w)
+        #     return weight

@@ -1,15 +1,16 @@
 from Entity.KamusKataDasar import KamusKataDasar
 import re
 
-class ControlStemming:
+class StemmingController:
     LIST_ROOT_WORD = []
 
     def __init__(self):
         self.rootWord = KamusKataDasar()
-        var = self.rootWord.read()
-        self.LIST_ROOT_WORD = var.split()
+        # var = self.rootWord.read()
+        self.LIST_ROOT_WORD = []
 
-    def doStemming(self, token):
+    def doStemming(self, token):  #harusnya name is sentence not token wkwkwkwk
+        self.LIST_ROOT_WORD = self.rootWord.read()
         result = []
         for word in token:
             if len(word) <= 3:
@@ -67,7 +68,7 @@ class ControlStemming:
     def removeInflectionSuffixes(self, word):
         baseWord = word
         if re.search(r"([klt]ah|pun|[km]u|nya)$", word):
-            infSuf = re.sub(r"([klt]ah|pun|[km]u|nya)$", "", word)
+            infSuf = re.sub(r"([klt]ah|pun|[km]u|nya)$", "", word) #sub string dari ku munya ... to ""
             if re.search(r"([klt]ah|pun)$", word):
                 if re.search(r"([km]u|nya)$", word):
                     posPron = re.sub(r"([km]u|nya)$", "", infSuf)

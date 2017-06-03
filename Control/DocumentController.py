@@ -1,8 +1,7 @@
 import os
 from Entity.EntityDocument import EntityDokumen
 
-
-class ControlDokumen:
+class DocumentController:
     def __init__(self):
         self.dokumen = EntityDokumen()
 
@@ -10,13 +9,12 @@ class ControlDokumen:
         dokumen = []
         self.listFile = os.listdir(folderPath)
         for list in self.listFile:
-            # print(list)
-            if list[-3:] == 'txt':
+            if list[-3:] == 'txt': #cek 3 karater dri blakang
                 addressFile = str(folderPath + "/" + list)
                 File = open(addressFile, 'r')
                 isiDokumen = File.read()
                 dokumen.append([isiDokumen])
-        self.dokumen.setDocument(dokumen)
+        self.dokumen.setDocument(dokumen) #dalam list
 
     def getDocument(self):
         return self.dokumen.getDocument()

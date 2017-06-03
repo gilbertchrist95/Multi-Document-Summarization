@@ -1,71 +1,49 @@
 from Entity.EntityAccuration import EntityAccuration
-from Control.ControlFiltering import ControlFiltering
-from Control.ControlStemming import ControlStemming
+from Control.FilteringController import FilteringController
+from Control.StemmingController import StemmingController
 import re
 
 
-class ControlAccuration:
+class AccurationController:
     def __init__(self):
-        self.controlFiltering = ControlFiltering()
-        self.controlStemming = ControlStemming()
+        self.controlFiltering = FilteringController()
+        self.controlStemming = StemmingController()
         self.ngram = 1;
         self.entityAccuration = EntityAccuration()
         DELIMETERS = "\"", "\'", "{", "}", "(", ")", "[", "]", ">", "<", "_", "=", "+", "|", "\\", ":", ";", " ", ",", ".", "/", "?", "~", "!", "@", "#", "$", "%", "^", "&", "*", "\r", "\n", "\t", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"
         self.regexPattern = '|'.join(map(re.escape, DELIMETERS))
 
     def doAccuration(self, summaries, resultSummary):
-
-
         resultSummary = self.setGramResultSummary(resultSummary)
-        # print(resultSummary)
-        # print(grams)
         summaries = self.setGramManualSummaries(summaries)
-
-        # for summ in summaries:
-        #     print(str(summ)+" "+str(summaries[summ]))
-        # print()
-        # for gr in gramss:
-        #     print(str(gr)+" "+str(gramss[gr]))
-
-        accuration = self.countRouge(resultSummary,summaries)
+        accuration = self.countAccuration(resultSummary, summaries)
         self.entityAccuration.setAccuration(accuration)
 
     def getResultAccuration(self):
         return self.entityAccuration.getAccuration()
 
-    # def setGram2(self, summaries, resultSummary):
-    #     # for summary in summaries:
-    #     #     summaries[summary] = list(set(filter(None, re.split(regexPattern, summaries[summary].lower()))))
-    #     # resultSummary = list(set(filter(None, re.split(regexPattern, ' '.join(resultSummary).lower()))))
-    #     for summary in summaries:
-    #         summaries[summary] = list(filter(None, re.split(self.regexPattern, summaries[summary].lower())))
-    #     resultSummary = list(filter(None, re.split(self.regexPattern, ' '.join(resultSummary).lower())))
-    #     return resultSummary, summaries
-
     def setGramResultSummary(self, summary):
         summary = list(filter(None, re.split(self.regexPattern, ' '.join(summary).lower())))
+        print(summary)
         # summary = list(re.split(self.regexPattern, ' '.join(summary).lower()))
-        summary = self.controlFiltering.doFiltering1(summary)
+        summary = self.controlFiltering.doFiltering(summary)
         summary = self.controlStemming.doStemming(summary)
-        # print()
-        # print(summary)
         grams = [summary[i:i + self.ngram] for i in range(len(summary) - self.ngram + 1)]
+        print(grams)
         return grams
 
     def setGramManualSummaries(self, summaries):
         gramss = {}
         for summary in summaries:
             summaries[summary] = list(filter(None, re.split(self.regexPattern, summaries[summary].lower())))
-            # summaries[summary] = list( re.split(self.regexPattern, summaries[summary].lower()))
-            # print((summaries[summary]))
-            summaries[summary] = self.controlFiltering.doFiltering1(summaries[summary])
+                # summaries[summary] = list( re.split(self.regexPattern, summaries[summary].lower()))
+            summaries[summary] = self.controlFiltering.doFiltering(summaries[summary])
             summaries[summary] = self.controlStemming.doStemming(summaries[summary])
-            # print((summaries[summary]))
             gramss[summary] = [summaries[summary][i:i + self.ngram] for i in
                                range(len(summaries[summary]) - self.ngram + 1)]
         return gramss
 
-    def countRouge(self, resultSummary, summaries):
+    def countAccuration(self, resultSummary, summaries):
         accurations = {}
         for summary in summaries:
             accuration = []
@@ -82,7 +60,14 @@ class ControlAccuration:
             accurations[summary] = accuration
         return accurations
 
-
+    # def setGram2(self, summaries, resultSummary):
+    #     # for summary in summaries:
+    #     #     summaries[summary] = list(set(filter(None, re.split(regexPattern, summaries[summary].lower()))))
+    #     # resultSummary = list(set(filter(None, re.split(regexPattern, ' '.join(resultSummary).lower()))))
+    #     for summary in summaries:
+    #         summaries[summary] = list(filter(None, re.split(self.regexPattern, summaries[summary].lower())))
+    #     resultSummary = list(filter(None, re.split(self.regexPattern, ' '.join(resultSummary).lower())))
+    #     return resultSummary, summaries
         # def countRouge(self, resultSummary, summaries):
         #     accurations = {}
         #     count1 = 0

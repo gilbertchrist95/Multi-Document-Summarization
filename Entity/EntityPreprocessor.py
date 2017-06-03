@@ -1,4 +1,4 @@
-class EntityPreprocessing:
+class EntityPreprocessor:
     def __init__(self):
         self.preprocessing = []
         self.document = []

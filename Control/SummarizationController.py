@@ -1,17 +1,15 @@
 from math import sqrt
-from math import log10
-from Control.SingularValueDecomposition1 import SingularValueDecomposition1
 from Control.SingularValueDecomposition import SingularValueDecomposition
+from Control.SingularValueDecomposition1 import SingularValueDecomposition1
 from Entity.EntitySummarization import EntitySummarization
+from numpy import *
 
 
 class ControlSummarization:
     entitySummaries = EntitySummarization()
-    svd = SingularValueDecomposition()
+    # svd = SingularValueDecomposition()
 
     def doSummarization(self, preprocessingResult, sentencesDocument):
-
-        # similarity, listCluster = self.sentencesClustering(preprocessingResult)
         similarity = self.latentSemancticIndexing(preprocessingResult)
         listCluster = self.similarityHistogramClustering(similarity)
         listSentence = self.representativeSelection(similarity, sentencesDocument, listCluster)
@@ -26,7 +24,9 @@ class ControlSummarization:
     #     return similarity, listCluster
 
     def latentSemancticIndexing(self, preprocessingResult):
-        # term, matrix = self.setMatrix(preprocessingResult)
+
+
+
         matrix = []  # term x sentence
         term = []  # term x 1
         iColumn = 0
@@ -40,19 +40,27 @@ class ControlSummarization:
                     matrix.append([0] * nColumn)
                     matrix[len(term) - 1][iColumn] = 1
             iColumn += 1
-
         # U, S, Vt = self.singularValueDecomposition(matrix)
+        # self.svd.count(matrix)
+        # U = self.svd.getU()
+        # S = self.svd.getS()
+        # Vt = self.svd.getVt()
 
-        self.svd.count(matrix)
-        U = self.svd.getU()
-        S = self.svd.getS()
-        Vt = self.svd.getVt()
+        # svd = SingularValueDecomposition1(matrix)
+        # svd.count()
+        # U = (svd.getU())
+        # S = (svd.getS())
+        # Vt = [[j[i] for j in svd.getV()] for i in range(len(svd.getV()))]
+        matriks = array(matrix)
+        U,S,Vt = linalg.svd(matriks, full_matrices=False)
 
         similarity = self.countSimilarity(term, preprocessingResult, U, S, Vt)
         return similarity
 
+
     def countSimilarity(self, term, preprocessingResult, U, S, Vt):
         US = [x[:] for x in [[0] * len(S)] * len(U)]
+        #   [[0 for i in range(self.S)] for j in range(self.U)] kolom and baris
         SVt = [x[:] for x in [[0] * len(Vt)] * len(S)]
         similarity = [x[:] for x in [[0] * len(SVt)] * len(SVt[0])]
         for i in range(len(U)):
@@ -72,7 +80,8 @@ class ControlSummarization:
             qq = sqrt(sum(list(map(lambda x: x ** 2, q))))
 
             for i in range(n, len(SVt[0])):
-                d = [row[i] for row in SVt]
+
+                d = [row[i] for row in SVt] #kolom
                 dd = sqrt(sum(list(map(lambda x: x ** 2, d))))
                 if n != i:
                     similarity[n][i] = similarity[i][n] = sum(list(map(lambda x, y: x * y, q, d))) / (qq * dd)
@@ -103,7 +112,7 @@ class ControlSummarization:
             else:
                 return 0
 
-        for i in range(1, len(similarity)):
+        for i in range(1, len(similarity)): #mulai dari sentences 2
             foundCluster = False
             for j in range(len(listCluster)):
                 if foundCluster is False:
@@ -121,10 +130,6 @@ class ControlSummarization:
                 listCluster.append(c)
                 HRold.append(0)
                 HRnew.append(0)
-        # print(len(listCluster))
-        # for list in listCluster:
-        #     print(list)
-        # print()
         return listCluster
 
     def representativeSelection(self, similarity, sentencesDocument, listCluster):
@@ -136,7 +141,7 @@ class ControlSummarization:
             for j in listCluster[i]:
                 max.append(0)
                 for k in listCluster[i]:
-                    if similarity[j][k] > max[-1]:
+                    if similarity[j][k] > max[-1]: #-1 means buncit
                         max[-1] = similarity[j][k]
             maxW.append(sum(max))
 
@@ -156,7 +161,6 @@ class ControlSummarization:
 
                 if (x == -1): x = listCluster[i][0]
             listSentence.append(sentencesDocument[x] + ".")
-
         return listSentence
 
 

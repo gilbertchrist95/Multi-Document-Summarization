@@ -1,22 +1,22 @@
 from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
-from Control.ControlDocument import ControlDokumen
-from Control.ControlPreprocessing import ControlPreprocessing
-from Control.ControlSummarization import ControlSummarization
-from Control.ControlAccuration1 import ControlAccuration
+from Control.DocumentController import DocumentController
+from Control.PreprocessorController import PreprocessorController
+from Control.SummarizationController import ControlSummarization
+from Control.AccurationController import AccurationController
 
 import os
 import time
 
 
-class ControlForm(Tk):
+class FormController(Tk):
     def __init__(self, title, *args, **kwargs):
         Tk.__init__(self, *args, **kwargs)
         self.centerWindow()
         self.title(title)
-        container = Frame(self)
-        container.pack(side='top', fill='both', expand=True)
+        container = Frame(self) #inisial fram
+        container.pack(side='top', fill='both', expand=True) #pack frame
 
         self.frames = {}
         for F in (FormMainMenu, FormSummarization, FormAccuration):
@@ -24,7 +24,7 @@ class ControlForm(Tk):
             frame = F(parent=container, controller=self)
             self.frames[pageName] = frame
             frame.grid(row=0, column=0, sticky="nsew")
-        self.showFrame(pageName="FormMainMenu")
+        self.showFrame(pageName="FormMainMenu") #show FormMainMenu
 
     def getFrame(self, pageName):
         return self.frames[pageName]
@@ -36,8 +36,8 @@ class ControlForm(Tk):
     def centerWindow(self):
         w = 810
         h = 470
-        screenWidth = self.winfo_screenwidth()
-        screenHeight = self.winfo_screenheight()
+        screenWidth = self.winfo_screenwidth() #1366
+        screenHeight = self.winfo_screenheight() #768
         x = (screenWidth - w) / 2
         y = (screenHeight - h) / 2
         self.geometry('%dx%d+%d+%d' % (w, h, x, y))
@@ -46,7 +46,7 @@ class ControlForm(Tk):
 class FormMainMenu(Frame):
     def __init__(self, parent, controller):
         self.controller = controller
-        self.controlDokumen = ControlDokumen()
+        self.controlDokumen = DocumentController()
 
         Frame.__init__(self, parent)
         frame = Frame(self)
@@ -75,7 +75,7 @@ class FormMainMenu(Frame):
         self.tree.heading('sumber', text="Sumber")
         self.tree.heading('judul', text="Judul")
         self.tree.pack(padx=10, pady=15)
-        # self.tree.bind("<Double-1>", self.OnDoubleClick)
+        # self.tree.bind("<Double-1>", self.nDoubleClick)
 
         # self.buttonReset = Button(frame, text="Reset", command=self.resetDocument)
         # self.buttonReset.pack(side=LEFT, padx=10)
@@ -102,12 +102,12 @@ class FormMainMenu(Frame):
         checkItem = self.tree.get_children()
         if checkItem != '()':
             for row in checkItem:
-                self.tree.delete(row)
+                self.tree.delete(row) #delete row jika berisi
 
-        folderPath = filedialog.askdirectory()
+        folderPath = filedialog.askdirectory() #buka file dialog
         if folderPath:
             self.entryBrowse.insert(0, (folderPath))
-            self.listFile = os.listdir(folderPath)
+            self.listFile = os.listdir(folderPath) #menlist file berdasarkan folderPath
             i = 1
             for file in self.listFile:
                 dokumen = file.split('-')
@@ -124,7 +124,7 @@ class FormMainMenu(Frame):
 class FormSummarization(Frame):
     def __init__(self, parent, controller):
 
-        self.controlPreprocessing = ControlPreprocessing()
+        self.controlPreprocessing = PreprocessorController()
         self.controlSummarization = ControlSummarization()
         self.resultSummary = []
 
@@ -188,8 +188,8 @@ class FormSummarization(Frame):
         self.sbVer.pack(side=LEFT, fill=Y)
         self.textFile.config(yscrollcommand=self.sbVer.set)
 
-        frameBottom = Frame(mainFrame, bd=5)
-        frameBottom.pack(fill=X, side=BOTTOM)
+        # frameBottom = Frame(mainFrame, bd=5)
+        # frameBottom.pack(fill=X, side=BOTTOM)
 
         self.buttonKembali = Button(mainFrame, text="Kembali", command=lambda: controller.showFrame("FormMainMenu"))
         self.buttonKembali.pack(side=LEFT, pady=10, padx=10)
@@ -198,44 +198,34 @@ class FormSummarization(Frame):
         self.buttonHitungAkurasi = Button(mainFrame, text="Hitung Akurasi->", state=DISABLED,
                                           command=lambda: self.showFrame("FormAccuration"))
         self.buttonHitungAkurasi.pack(side=RIGHT, padx=10, pady=10)
-        # self.sentencesDocument = []
-        # self.preprocessingResult = []
-        # self.progress = Label(frameBottom)
-        # self.progress.pack(side=BOTTOM)
 
     def doPreprocessing(self):
         start = time.time()
         formMainMenu = self.controller.getFrame("FormMainMenu")
         dokumen = formMainMenu.dokumen
         self.controlPreprocessing.doPreprocessing(dokumen)
-        self.buttonRingasBerita['state'] = 'normal'
         end = time.time()
         self.labelExecution['text'] = ("Preprocessing Time: %.3f second" % (end - start))
+        self.buttonRingasBerita['state'] = 'normal'
 
     def doSummarization(self):
         start = time.time()
         sentencesDocument = self.controlPreprocessing.getSentencesDocument()
         preprocessingResult = self.controlPreprocessing.getResultPreprocessing()
 
-        # valueEntryST = self.entryST.get()
-        # valueEntryHRmin = self.entryHRmin.get()
-        # valueEntryEpsilon = self.entryEpsilon.get()
-        # valueEntrySID = self.entrySID.get()
-
         self.controlSummarization.doSummarization(preprocessingResult, sentencesDocument)
         self.resultSummary = self.controlSummarization.getResultSummary()
         end = time.time()
-        # print("execution time: " + str(end - start))
         self.labelExecution['text'] = ("Summarization Time: %.3f second" % (end - start))
         for sentence in self.resultSummary:
-            self.textFile.insert(INSERT, sentence + " ")
+            self.textFile.insert(INSERT, sentence + " ") #Tag,sentence
         self.buttonHitungAkurasi['state'] = 'normal'
 
-    def getSumber(self):
-        formMainMenu = self.controller.getFrame("FormMainMenu")
-        dokumen = formMainMenu.dokumen
-        for d in dokumen.values():
-            print(d)
+    # def getSumber(self):
+    #     formMainMenu = self.controller.getFrame("FormMainMenu")
+    #     dokumen = formMainMenu.dokumen
+    #     for d in dokumen.values():
+    #         print(d)
 
     def showFrame(self, frameName):
         self.controller.showFrame(frameName)
@@ -243,8 +233,8 @@ class FormSummarization(Frame):
 
 class FormAccuration(Frame):
     def __init__(self, parent, controller):
-        self.controlDokumen = ControlDokumen()
-        self.controlAccuration = ControlAccuration()
+        self.controlDokumen = DocumentController()
+        self.controlAccuration = AccurationController()
         Frame.__init__(self, parent)
         self.controller = controller
         frame = Frame(self)
@@ -264,43 +254,33 @@ class FormAccuration(Frame):
         self.entryBrowse.pack(padx=5, side=LEFT)
         self.buttonBrowse = Button(frameBody, text='Browse', command=self.browseAccuration)
         self.buttonBrowse.pack(side=LEFT, padx=10)
-        #
-        # frameA = Frame(mainFrame, bd=5)
-        # frameA.pack(fill=X, side=TOP)
-        #
-        # self.stateStopwordRemoval = IntVar(value=1)
-        # self.checkButton = Checkbutton(frameA, text="Stopword Removal", variable=self.stateStopwordRemoval)
-        # self.checkButton.pack(side=LEFT,padx=10)
-        #
-        # self.stateStemming = IntVar(value=1)
-        # self.checkButton = Checkbutton(frameA, text="Stemming", variable=self.stateStemming)
-        # self.checkButton.pack(side=LEFT,padx=10)
+
 
         frameB = Frame(mainFrame, bd=5)
         frameB.pack(fill=X, side=BOTTOM)
 
         self.tree = ttk.Treeview(frameB, height=8)
-        self.tree['column'] = ("sumber", "Rouge-1.Recall", "Rouge-1.Precision", "Rouge-1.F-measure")
+        self.tree['column'] = ("judul", "Recall", "Precision", "F-measure")
         self.tree.column("#0", width=30, anchor=CENTER)
-        self.tree.column("sumber", width=90, anchor=W)
-        self.tree.column("Rouge-1.Recall", width=115, anchor=CENTER)
-        self.tree.column("Rouge-1.Precision", width=115, anchor=CENTER)
-        self.tree.column("Rouge-1.F-measure", width=115, anchor=CENTER)
+        self.tree.column("judul", width=185, anchor=W)
+        self.tree.column("Recall", width=85, anchor=CENTER)
+        self.tree.column("Precision", width=85, anchor=CENTER)
+        self.tree.column("F-measure", width=85, anchor=CENTER)
 
         self.tree.heading('#0', text="No.")
-        self.tree.heading('sumber', text="Sumber")
-        self.tree.heading('Rouge-1.Recall', text="ROUGE-1.Recall")
-        self.tree.heading('Rouge-1.Precision', text="Rouge-1.Precision")
-        self.tree.heading('Rouge-1.F-measure', text="Rouge-1.F-measure")
+        self.tree.heading('judul', text="Sumber Ringkasan")
+        self.tree.heading('Recall', text="Recall")
+        self.tree.heading('Precision', text="Precision")
+        self.tree.heading('F-measure', text="F-measure")
         self.tree.pack(side=LEFT, padx=10, pady=3)
 
         self.tree2 = ttk.Treeview(frameB, height=4)
-        self.tree2['column'] = ("rogue", "akurasi")
+        self.tree2['column'] = ("rerata", "akurasi")
         self.tree2.column("#0", width=40)
-        self.tree2.column("rogue", width=140, anchor=W)
+        self.tree2.column("rerata", width=140, anchor=W)
         self.tree2.column("akurasi", width=100, anchor=CENTER)
         self.tree2.heading('#0', text="No.")
-        self.tree2.heading('rogue', text="ROUGE-1multi")
+        self.tree2.heading('rerata', text="Rata-rata")
         self.tree2.heading('akurasi', text="Nilai")
         self.tree2.pack(side=TOP, padx=10, pady=3)
 
@@ -332,9 +312,9 @@ class FormAccuration(Frame):
         summaries = self.controlDokumen.getSummaries()
         formSummarization = self.controller.getFrame("FormSummarization")
         listSentence = formSummarization.resultSummary
-
-        print(summaries)
-        print(listSentence)
+        #
+        # print(summaries)
+        # print(listSentence)
 
         self.controlAccuration.doAccuration(summaries, listSentence)
         accuration = self.controlAccuration.getResultAccuration()
@@ -348,21 +328,19 @@ class FormAccuration(Frame):
                                                            round(accuration[list][1], 3),
                                                            round(accuration[list][2], 3)))
             z += 1
-        Rouge1multi = {}
-        Rouge1multi['recall'] = sum(acc for acc in [accuration[i][0] for i in accuration]) / len(accuration)
-        Rouge1multi['precision'] = sum(acc for acc in [accuration[i][1] for i in accuration]) / len(accuration)
-        Rouge1multi['fmeasure'] = sum(acc for acc in [accuration[i][2] for i in accuration]) / len(accuration)
-
-        # self.tree2.delete(*self.tree.get_children())
+        Ratarata = {}
+        Ratarata['recall'] = sum(acc for acc in [accuration[i][0] for i in accuration]) / len(accuration)
+        Ratarata['precision'] = sum(acc for acc in [accuration[i][1] for i in accuration]) / len(accuration)
+        Ratarata['fmeasure'] = sum(acc for acc in [accuration[i][2] for i in accuration]) / len(accuration)
 
         checkItem = self.tree2.get_children()
         if checkItem != '()':
             for row in checkItem:
                 self.tree2.delete(row)
 
-        self.tree2.insert('', END, text=str('1'), values=('Rouge-1multi Recall', round(Rouge1multi['recall'], 3)))
-        self.tree2.insert('', END, text=str(2), values=('Rouge-1multi Precision', round(Rouge1multi['precision'], 3)))
-        self.tree2.insert('', END, text=str('3'), values=('Rouge-1multi F-measure', round(Rouge1multi['fmeasure'], 3)))
+        self.tree2.insert('', END, text=str('1'), values=('Rata-rata Recall', round(Ratarata['recall'], 3)))
+        self.tree2.insert('', END, text=str(2), values=('Rata-rata Precision', round(Ratarata['precision'], 3)))
+        self.tree2.insert('', END, text=str('3'), values=('Rata-rata F-measure', round(Ratarata['fmeasure'], 3)))
 
         #
         # if __name__ == "__main__":
@@ -471,5 +449,5 @@ class FormAccuration(Frame):
 
 
 if __name__ == "__main__":
-    app = ControlForm(title="Program Tugas Akhir")
+    app = FormController(title="Program Tugas Akhir")
     app.mainloop()

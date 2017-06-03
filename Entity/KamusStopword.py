@@ -1,4 +1,6 @@
 class KamusStopWord:
 	def read(self):
 		File = open('stopword.txt','r')
-		return File.read()
+		var =  File.read()
+		LIST_STOP_WORD = var.split()
+		return LIST_STOP_WORD
